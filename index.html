@@ -3,6 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Scroller memory repro</title>
+<link rel="stylesheet" href="https://unpkg.com/@speed-highlight/core@2.1.0/dist/themes/github-light.css">
 <style>
   body {
     font: 16px/1.5 system-ui, sans-serif;
@@ -104,6 +105,22 @@
   .size select { font: inherit; padding: 0.35rem 0.5rem; border: 1px solid #d0d5dd;
        border-radius: 8px; background: #fff; color: inherit }
 
+  .markup { margin-top: 1.5rem; border-radius: 12px; overflow: hidden; background: #fff;
+       box-shadow: 0 0 0 1px rgb(16 24 40 / 0.06),
+                   0 1px 2px rgb(16 24 40 / 0.06),
+                   0 12px 28px -10px rgb(16 24 40 / 0.22) }
+  .markup .head { padding-right: 1rem }
+  .markup .panes { display: grid; gap: 0; border-top: 1px solid #eaecf0;
+       grid-template-columns: repeat(auto-fit, minmax(min(22rem, 100%), 1fr)) }
+  .markup .pane { min-width: 0; border-left: 1px solid #eaecf0 }
+  .markup .pane:first-child { border-left: 0 }
+  .markup h3 { margin: 0; padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 600;
+       letter-spacing: 0.04em; text-transform: uppercase; color: #667085;
+       background: #fcfcfd; border-bottom: 1px solid #eaecf0 }
+  /* The highlighter sets its own colours; this only controls the box. */
+  .markup [class*="shj-lang-"] { margin: 0; padding: 0.875rem 1rem; overflow-x: auto;
+       font: 0.8125rem/1.6 ui-monospace, monospace; background: none }
+
   footer { margin-top: 2.5rem; color: #666; font-size: 0.9375rem; max-width: 44rem }
 </style>
 
@@ -174,6 +191,55 @@ scroll-snap-type: x mandatory;</pre>
     <a class="run" href="full.html" target="_blank" rel="noopener">Run full</a>
   </li>
 </ul>
+
+<section class="markup">
+  <div class="head">
+    <h2>One row</h2>
+    <p class="about">What every row on these pages is built from. Only the two marked
+    declarations differ between the demos.</p>
+  </div>
+  <div class="panes">
+    <div class="pane">
+      <h3>HTML</h3>
+      <div class="shj-lang-html">&lt;div class="tile"&gt;
+  &lt;div class="scroller"&gt;
+    &lt;div class="slide"&gt;&lt;div class="box"&gt;&lt;/div&gt;&lt;/div&gt;
+    &lt;!-- ...10 slides --&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div>
+    </div>
+    <div class="pane">
+      <h3>CSS</h3>
+      <div class="shj-lang-css">.scroller {
+  display: flex;
+  gap: 16px;
+  width: round(down, 100%, 1px);
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+
+  overflow-x: auto;              /* nosnap + full */
+  scroll-snap-type: x mandatory; /* full only */
+}
+
+.slide {
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.box {
+  width: 200px;
+  height: 200px;
+}</div>
+    </div>
+  </div>
+</section>
+
+<script type="module">
+  import { highlightAll } from "https://unpkg.com/@speed-highlight/core@2.1.0/dist/index.js";
+  highlightAll();
+</script>
 
 <script>
   const tiles = document.getElementById("tiles");
