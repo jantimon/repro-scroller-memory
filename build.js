@@ -316,7 +316,9 @@ const index = `<!doctype html>
   <p>On an iPhone (iOS 26), <code>full</code> reaches 8.2 GB in 17 seconds and the
   WebContent process is killed at its 1536 MB limit. <code>noscroller</code> renders the
   same boxes and stays flat. The iOS Simulator shows no difference between them.</p>
-  <p class="size">
+</header>
+
+  <div class="size">
     <label for="tiles">Rows per page</label>
     <select id="tiles">
       <option>50</option>
@@ -330,8 +332,7 @@ const index = `<!doctype html>
       <option>5000</option>
       <option>10000</option>
     </select>
-  </p>
-</header>
+  </div>
 
 <ul class="demos">
 ${DEMOS.map(card).join("\n")}
