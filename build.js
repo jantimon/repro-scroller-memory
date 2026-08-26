@@ -283,11 +283,16 @@ const index = `<!doctype html>
   <p class="size">
     <label for="tiles">Rows per page</label>
     <select id="tiles">
+      <option>50</option>
       <option>100</option>
+      <option>200</option>
+      <option>300</option>
+      <option>400</option>
       <option>500</option>
-      <option>750</option>
       <option selected>1000</option>
       <option>2000</option>
+      <option>5000</option>
+      <option>10000</option>
     </select>
   </p>
 </header>
