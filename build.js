@@ -286,14 +286,18 @@ const index = `<!doctype html>
   .markup .head { padding-right: 1rem }
   .markup .panes { display: grid; gap: 0; border-top: 1px solid #eaecf0;
        grid-template-columns: repeat(auto-fit, minmax(min(22rem, 100%), 1fr)) }
-  .markup .pane { min-width: 0; border-left: 1px solid #eaecf0 }
+  /* Rows so the code block can stretch to the tallest pane. */
+  .markup .pane { min-width: 0; border-left: 1px solid #eaecf0;
+       display: grid; grid-template-rows: auto 1fr }
   .markup .pane:first-child { border-left: 0 }
   .markup h3 { margin: 0; padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 600;
        letter-spacing: 0.04em; text-transform: uppercase; color: #667085;
        background: #fcfcfd; border-bottom: 1px solid #eaecf0 }
-  /* The highlighter sets its own colours; this only controls the box. */
+  /* The highlighter sets its own colours; this only controls the box. Its own
+     border and radius would draw a second card inside this one. */
   .markup [class*="shj-lang-"] { margin: 0; padding: 0.875rem 1rem; overflow-x: auto;
-       font: 0.8125rem/1.6 ui-monospace, monospace; background: none }
+       font: 0.8125rem/1.6 ui-monospace, monospace; background: none;
+       border: 0; border-radius: 0; height: 100%; box-sizing: border-box }
 
   footer { margin-top: 2.5rem; color: #666; font-size: 0.9375rem; max-width: 44rem }
 </style>
