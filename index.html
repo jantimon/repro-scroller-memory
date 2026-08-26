@@ -218,6 +218,18 @@ content-visibility: auto;</pre>
   </li>
   <li>
     <div class="head">
+      <h2>inview</h2>
+      <p class="about">Rows become scroll containers only while they are near the viewport, and give it back on the way out. Survives, and swipes normally.</p>
+    </div>
+    <a class="source" href="https://github.com/jantimon/repro-scroller-memory/blob/main/inview.html" target="_blank" rel="noopener"
+       aria-label="Source code for inview on GitHub"><span>Source code</span>
+      <svg class="gh" aria-hidden="true"><use href="#github"></use></svg></a>
+    <pre class="css">overflow-x: auto;
+/* only while near the viewport */</pre>
+    <a class="run" href="inview.html" target="_blank" rel="noopener">Run inview</a>
+  </li>
+  <li>
+    <div class="head">
       <h2>full</h2>
       <p class="about">Every row is its own scroll container. This alone is enough to kill the page — snapping is not required.</p>
     </div>

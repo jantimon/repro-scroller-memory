@@ -38,6 +38,36 @@ content-visibility: auto;`,
     display: none;`,
   },
   {
+    file: "inview.html",
+    name: "inview",
+    about:
+      "Rows become scroll containers only while they are near the viewport, and give it back on the way out. Survives, and swipes normally.",
+    css: `overflow-x: auto;\n/* only while near the viewport */`,
+    rules: null,
+    style: `  .scroller.is-live {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+  }
+
+  .scroller.is-live::-webkit-scrollbar {
+    display: none;
+  }`,
+    extra: `  // One observer, every row as a target. Only rows within two viewports are
+  // scroll containers.
+  const watcher = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        entry.target
+          .querySelector(".scroller")
+          ?.classList.toggle("is-live", entry.isIntersecting);
+      }
+    },
+    { rootMargin: window.innerHeight * 2 + "px" },
+  );
+  for (const tile of document.querySelectorAll(".tile")) watcher.observe(tile);`,
+  },
+  {
     file: "full.html",
     name: "full",
     about:
@@ -144,7 +174,7 @@ const runtime = (name, nested) => `<script>
 <\/script>
 `;
 
-const demoPage = ({ name, rules, tile }) => `<!doctype html>
+const demoPage = ({ name, rules, tile, style, extra }) => `<!doctype html>
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -194,12 +224,12 @@ const demoPage = ({ name, rules, tile }) => `<!doctype html>
     height: 200px;
     background: #c0c6d0;
   }
-</style>
+${style ? `\n${style}\n` : ""}</style>
 
 <div id="bar"></div>
 <div id="list"></div>
 
-${runtime(name, true)}`;
+${runtime(name, true)}${extra ? `\n<script>\n${extra}\n<\/script>\n` : ""}`;
 
 
 /**

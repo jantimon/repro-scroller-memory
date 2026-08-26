@@ -2,7 +2,7 @@
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>io-window</title>
+<title>inview-scrollend</title>
 <style>
   :root { color-scheme: light dark; }
 
@@ -73,7 +73,7 @@
   const TILES = size("tiles", 1000);
   const SLIDES = size("slides", 10);
   const NESTED = true;
-  const NAME = "io-window";
+  const NAME = "inview-scrollend";
 
   const record = (phase, extra) => {
     const state = { page: NAME, rows: TILES, phase, ...extra };
@@ -146,16 +146,37 @@
 </script>
 
 <script>
-  // Only rows within two viewports are scroll containers; the rest give it back.
+  const pending = new Map();
+
   const watcher = new IntersectionObserver(
     (entries) => {
-      for (const entry of entries) {
-        entry.target
-          .querySelector(".scroller")
-          ?.classList.toggle("is-live", entry.isIntersecting);
-      }
+      for (const entry of entries) pending.set(entry.target, entry.isIntersecting);
     },
     { rootMargin: window.innerHeight * 2 + "px" },
   );
   for (const tile of document.querySelectorAll(".tile")) watcher.observe(tile);
+
+  const flush = () => {
+    requestAnimationFrame(() => {
+      for (const [tile, isInView] of pending) {
+        tile.querySelector(".scroller")?.classList.toggle("is-live", isInView);
+      }
+      pending.clear();
+    });
+  };
+
+  window.addEventListener("scrollend", flush, { passive: true });
+
+  /* scrollend is not everywhere yet, and the first screen has to come up before
+     anything has been scrolled at all. */
+  let idle;
+  window.addEventListener(
+    "scroll",
+    () => {
+      clearTimeout(idle);
+      idle = setTimeout(flush, 150);
+    },
+    { passive: true },
+  );
+  setTimeout(flush, 200);
 </script>

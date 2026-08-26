@@ -23,6 +23,55 @@ const scrollable = (extra = "") => `${FLEX_ROW}
 
 export const VARIANTS = [
   {
+    file: "test_inview-scrollend.html",
+    name: "inview-scrollend",
+    mode: "slides",
+    scroller: `${FLEX_ROW}
+    overflow: hidden;`,
+    slide: FLEX_SLIDE,
+    css: `  .scroller.is-live {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory;
+  }`,
+    // The observer only records; the classes are applied once scrolling has
+    // stopped, so no style or layout work lands in the middle of a gesture.
+    extra: `  const pending = new Map();
+
+  const watcher = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) pending.set(entry.target, entry.isIntersecting);
+    },
+    { rootMargin: window.innerHeight * 2 + "px" },
+  );
+  for (const tile of document.querySelectorAll(".tile")) watcher.observe(tile);
+
+  const flush = () => {
+    requestAnimationFrame(() => {
+      for (const [tile, isInView] of pending) {
+        tile.querySelector(".scroller")?.classList.toggle("is-live", isInView);
+      }
+      pending.clear();
+    });
+  };
+
+  window.addEventListener("scrollend", flush, { passive: true });
+
+  /* scrollend is not everywhere yet, and the first screen has to come up before
+     anything has been scrolled at all. */
+  let idle;
+  window.addEventListener(
+    "scroll",
+    () => {
+      clearTimeout(idle);
+      idle = setTimeout(flush, 150);
+    },
+    { passive: true },
+  );
+  setTimeout(flush, 200);`,
+  },
+
+  {
     file: "test_snap.html",
     name: "snap",
     mode: "slides",
@@ -178,31 +227,6 @@ export const VARIANTS = [
     },
     { passive: true },
   );`,
-  },
-  {
-    file: "test_io-window.html",
-    name: "io-window",
-    mode: "slides",
-    scroller: `${FLEX_ROW}
-    overflow: hidden;`,
-    slide: FLEX_SLIDE,
-    css: `  .scroller.is-live {
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-    scroll-snap-type: x mandatory;
-  }`,
-    extra: `  // Only rows within two viewports are scroll containers; the rest give it back.
-  const watcher = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        entry.target
-          .querySelector(".scroller")
-          ?.classList.toggle("is-live", entry.isIntersecting);
-      }
-    },
-    { rootMargin: window.innerHeight * 2 + "px" },
-  );
-  for (const tile of document.querySelectorAll(".tile")) watcher.observe(tile);`,
   },
   {
     file: "test_first-20.html",

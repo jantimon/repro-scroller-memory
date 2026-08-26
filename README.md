@@ -9,6 +9,7 @@ a scroll container and whether it snaps.
 | `noscroller.html` | `overflow: hidden` | renders, stays flat |
 | `full.html` | `overflow-x: auto` | killed |
 | `content-visibility.html` | `overflow-x: auto` + `content-visibility: auto` | renders, stays flat |
+| `inview.html` | `overflow-x: auto` only while near the viewport | renders, stays flat |
 
 The scroll container alone is enough — snapping, flex and the slide wrapper are all
 irrelevant. Opting the row out of rendering while it is offscreen avoids the cost while
