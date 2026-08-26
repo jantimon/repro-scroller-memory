@@ -55,20 +55,7 @@ export const VARIANTS = [
     });
   };
 
-  window.addEventListener("scrollend", flush, { passive: true });
-
-  /* scrollend is not everywhere yet, and the first screen has to come up before
-     anything has been scrolled at all. */
-  let idle;
-  window.addEventListener(
-    "scroll",
-    () => {
-      clearTimeout(idle);
-      idle = setTimeout(flush, 150);
-    },
-    { passive: true },
-  );
-  setTimeout(flush, 200);`,
+  window.addEventListener("scrollend", flush, { passive: true });`,
   },
 
   {
