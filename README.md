@@ -4,7 +4,7 @@ Three pages rendering 1000 flex rows of 10 full-width slides, each holding a 200
 box. No images, no libraries, ~21,000 elements. They differ only in whether the row is
 a scroll container and whether it snaps.
 
-| page | CSS on the row | iPhone 13 Pro |
+| page | CSS on the row | iPhone |
 | --- | --- | --- |
 | `noscroller.html` | `overflow: hidden` | renders, stays flat |
 | `nosnap.html` | `overflow-x: auto` | killed |
@@ -20,7 +20,7 @@ reproduction. `build.js` generates them; run `node build.js` after editing it.
 
 ## Measured
 
-iPhone 13 Pro, iOS 26, mobile Safari. Kernel log read with `idevicesyslog`:
+iPhone, iOS 26, mobile Safari. Kernel log read with `idevicesyslog`:
 
 ```
 memorystatus: com.apple.WebKit.WebContent [21005] exceeded mem limit: ActiveSoft 1536 MB (non-fatal)

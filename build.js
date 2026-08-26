@@ -313,7 +313,7 @@ const index = `<!doctype html>
   <p>Three pages rendering 1000 flex rows of 10 full-width slides, each holding a
   200×200 box. No images, no libraries, ~21,000 elements. They differ only in whether
   the row is a scroll container and whether it snaps.</p>
-  <p>On an iPhone 13 Pro (iOS 26), <code>full</code> reaches 8.2 GB in 17 seconds and the
+  <p>On an iPhone (iOS 26), <code>full</code> reaches 8.2 GB in 17 seconds and the
   WebContent process is killed at its 1536 MB limit. <code>noscroller</code> renders the
   same boxes and stays flat. The iOS Simulator shows no difference between them.</p>
   <p class="size">
