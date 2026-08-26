@@ -2,7 +2,7 @@
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>css-carousel</title>
+<title>inview-timeline</title>
 <style>
   :root { color-scheme: light dark; }
 
@@ -25,6 +25,7 @@
 
   .tile {
     padding: 8px 16px 24px;
+    timeline-scope: var(--row);
   }
 
   .scroller {
@@ -34,10 +35,6 @@
     width: round(down, 100%, 1px);
     aspect-ratio: 1 / 1;
     overflow: hidden;
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-    scroll-snap-type: x mandatory;
-    scroll-marker-group: after;
   }
 
   .scroller::-webkit-scrollbar { display: none; }
@@ -48,13 +45,34 @@
     align-items: center;
     justify-content: center;
     scroll-snap-align: center;
-    &::scroll-marker { content: ""; width: 6px; height: 6px }
   }
 
   .box {
     width: 200px;
     height: 200px;
     background: #c0c6d0;
+  }
+
+  .scroller.is-live {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory;
+    scroll-timeline: var(--row) inline;
+  }
+
+  .tile::after {
+    content: "";
+    display: block;
+    height: 4px;
+    margin-top: 8px;
+    background: #8a94a6;
+    animation: sweep linear both;
+    animation-timeline: var(--row);
+  }
+
+  @keyframes sweep {
+    from { width: 10% }
+    to { width: 100% }
   }
 
 </style>
@@ -72,7 +90,7 @@
   const TILES = size("tiles", 1000);
   const SLIDES = size("slides", 10);
   const NESTED = true;
-  const NAME = "css-carousel";
+  const NAME = "inview-timeline";
 
   const record = (phase, extra) => {
     const state = { page: NAME, rows: TILES, phase, ...extra };
@@ -142,4 +160,22 @@
     };
     requestAnimationFrame(step);
   }
+</script>
+
+<script>
+  document.querySelectorAll(".tile").forEach((tile, index) => {
+    tile.style.setProperty("--row", "--row" + index);
+  });
+
+  const watcher = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        entry.target
+          .querySelector(".scroller")
+          ?.classList.toggle("is-live", entry.isIntersecting);
+      }
+    },
+    { rootMargin: window.innerHeight * 2 + "px" },
+  );
+  for (const tile of document.querySelectorAll(".tile")) watcher.observe(tile);
 </script>

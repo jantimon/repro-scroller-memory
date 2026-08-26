@@ -161,6 +161,7 @@
     },
     { rootMargin: window.innerHeight * 2 + "px" },
   );
+
   const flush = () => {
     requestAnimationFrame(() => {
       for (const [tile, isInView] of pending) {

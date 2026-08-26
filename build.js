@@ -41,7 +41,7 @@ content-visibility: auto;`,
     file: "inview.html",
     name: "inview",
     about:
-      "Rows become scroll containers only while they are near the viewport, and give it back on the way out. Survives, and swipes normally.",
+      "An IntersectionObserver makes a row a scroll container only while it is near the viewport, and takes it back on the way out. Survives, and swipes normally.",
     css: `overflow-x: auto;\n/* only while near the viewport */`,
     rules: null,
     style: `  .scroller.is-live {
