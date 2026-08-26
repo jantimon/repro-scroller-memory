@@ -73,6 +73,7 @@ content-visibility: auto;`,
     about:
       "Every row is its own scroll container. This alone is enough to kill the page — snapping is not required.",
     css: `overflow-x: auto;`,
+    danger: true,
     rules: `    overflow-x: auto;
     overscroll-behavior-inline: contain;
     scrollbar-width: none;
@@ -315,7 +316,7 @@ ${css ? `\n${css}\n` : ""}${mode === "boxes" ? Array.from({ length: 10 }, (_, in
 
 ${runtime(name, mode === "slides")}${extra ? `\n<script>\n${extra}\n<\/script>\n` : ""}`;
 
-const card = ({ file, name, about, css }) => `  <li>
+const card = ({ file, name, about, css, danger }) => `  <li>
     <div class="head">
       <h2>${name}</h2>
       <p class="about">${about}</p>
@@ -324,7 +325,7 @@ const card = ({ file, name, about, css }) => `  <li>
        aria-label="Source code for ${name} on GitHub"><span>Source code</span>
       <svg class="gh" aria-hidden="true"><use href="#github"></use></svg></a>
     <pre class="css">${css}</pre>
-    <a class="run" href="${file}" target="_blank" rel="noopener">Run ${name}</a>
+    <a class="run${danger ? " is-danger" : ""}" href="${file}" target="_blank" rel="noopener">Run ${name}</a>
   </li>`;
 
 const index = `<!doctype html>
@@ -432,6 +433,10 @@ const index = `<!doctype html>
   }
 
   .run:hover { background: #344054 }
+
+  /* The one that kills the tab. */
+  .run.is-danger { background: #b42318 }
+  .run.is-danger:hover { background: #912018 }
 
   .size { display: flex; align-items: center; gap: 0.5rem; margin: 1.25rem 0 0 }
   .size label { color: #666 }
