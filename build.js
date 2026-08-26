@@ -463,6 +463,20 @@ const index = `<!doctype html>
     }
   }
 
+  .results { margin-top: 1.5rem; border-radius: 12px; overflow: hidden; background: #fff;
+       box-shadow: 0 0 0 1px rgb(16 24 40 / 0.06),
+                   0 1px 2px rgb(16 24 40 / 0.06),
+                   0 12px 28px -10px rgb(16 24 40 / 0.22) }
+  .results .head { padding-right: 1rem }
+  .results table { width: 100%; border-collapse: collapse; border-top: 1px solid #eaecf0 }
+  .results th, .results td { padding: 0.5rem 1rem; text-align: left; font-size: 0.875rem;
+       border-top: 1px solid #f2f4f7 }
+  .results th { background: #fcfcfd; color: #667085; font-size: 0.75rem; font-weight: 600;
+       letter-spacing: 0.04em; text-transform: uppercase; border-top: 0 }
+  .results td:last-child { font-variant-numeric: tabular-nums }
+  .caveat { margin: 0; padding: 0.875rem 1rem; border-top: 1px solid #eaecf0;
+       background: #fcfcfd; color: #667085; font-size: 0.8125rem; max-width: none }
+
   .markup { margin-top: 1.5rem; border-radius: 12px; overflow: hidden; background: #fff;
        box-shadow: 0 0 0 1px rgb(16 24 40 / 0.06),
                    0 1px 2px rgb(16 24 40 / 0.06),
@@ -521,6 +535,32 @@ const index = `<!doctype html>
 <ul class="demos">
 ${DEMOS.map(card).join("\n")}
 </ul>
+
+<section class="results">
+  <div class="head">
+    <h2>Where <code>full</code> stops rendering</h2>
+    <p class="about">Highest row count that still built the page, walking 50 → 100 → 200
+    → 500 → 1000 and stopping at the first count that failed.</p>
+  </div>
+  <table>
+    <thead>
+      <tr><th>Device</th><th>iOS</th><th>RAM</th><th>Highest rendered</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>iPhone 17 Pro</td><td>26</td><td>12 GB</td><td>100</td></tr>
+      <tr><td>iPhone 15 Pro Max</td><td>26</td><td>8 GB</td><td>100</td></tr>
+      <tr><td>iPhone 14</td><td>26</td><td>6 GB</td><td>200</td></tr>
+      <tr><td>iPhone 12 Pro</td><td>18</td><td>6 GB</td><td>200</td></tr>
+      <tr><td>iPhone 13</td><td>18</td><td>4 GB</td><td>100</td></tr>
+      <tr><td>iPhone SE 2022</td><td>15</td><td>4 GB</td><td>1000</td></tr>
+    </tbody>
+  </table>
+  <p class="caveat">Measured on BrowserStack real devices. More RAM did not help, and the
+  oldest and weakest device was the only one to render every row — so the variable looks
+  like the iOS version rather than the hardware. Failures were reported as socket
+  timeouts, which cannot always be told apart from a killed web view, so read these as a
+  floor rather than an exact limit.</p>
+</section>
 
 <section class="markup">
   <div class="head">
