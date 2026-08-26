@@ -16,6 +16,8 @@ every form, `will-change`, `translateZ` and every other `overflow` flavour were 
 tested and changed nothing. The only thing that helps is having fewer rows that are
 scroll containers at any moment.
 
+<img width="315" height="684" alt="safari showing a memory error" src="https://github.com/user-attachments/assets/a6e6b932-4980-4ebd-97d5-3f886dfbd8b0" />
+
 Two further variants, not linked from the index:
 
 | page | |
