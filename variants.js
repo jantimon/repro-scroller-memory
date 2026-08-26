@@ -37,15 +37,20 @@ export const VARIANTS = [
     // The observer only records; the classes are applied once scrolling has
     // stopped, so no style or layout work lands in the middle of a gesture.
     extra: `  const pending = new Map();
+  let primed = false;
 
   const watcher = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) pending.set(entry.target, entry.isIntersecting);
+      /* The first report is what the page opens on, and no scroll has happened
+         yet to flush it. Everything after that waits for scrolling to stop. */
+      if (!primed) {
+        primed = true;
+        requestIdleCallback(flush);
+      }
     },
     { rootMargin: window.innerHeight * 2 + "px" },
   );
-  for (const tile of document.querySelectorAll(".tile")) watcher.observe(tile);
-
   const flush = () => {
     requestAnimationFrame(() => {
       for (const [tile, isInView] of pending) {
@@ -54,6 +59,8 @@ export const VARIANTS = [
       pending.clear();
     });
   };
+
+  for (const tile of document.querySelectorAll(".tile")) watcher.observe(tile);
 
   window.addEventListener("scrollend", flush, { passive: true });`,
   },
