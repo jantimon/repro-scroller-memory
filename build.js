@@ -145,6 +145,190 @@ const demoPage = ({ name, rules }) => `<!doctype html>
 </script>
 `;
 
+
+/**
+ * Scenarios probing whether a different construction avoids the cost. Prefixed
+ * `test_` and deliberately not linked from the index — they are experiments, not
+ * part of the reproduction.
+ *
+ * `mode` picks the markup: "slides" nests a box in a slide, "boxes" puts the
+ * boxes straight in the scroller.
+ */
+const TESTS = [
+  {
+    file: "test_inline-block.html",
+    name: "inline-block",
+    mode: "slides",
+    scroller: `    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory;
+    white-space: nowrap;
+    aspect-ratio: 1 / 1;`,
+    slide: `    display: inline-block;
+    width: 100%;
+    text-align: center;
+    scroll-snap-align: center;`,
+  },
+  {
+    file: "test_overflow-auto.html",
+    name: "overflow-auto",
+    mode: "slides",
+    scroller: `    display: flex;
+    gap: 16px;
+    width: round(down, 100%, 1px);
+    aspect-ratio: 1 / 1;
+    overflow: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory;`,
+    slide: `    flex: 0 0 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    scroll-snap-align: center;`,
+  },
+  {
+    file: "test_content-visibility.html",
+    name: "content-visibility",
+    mode: "slides",
+    tile: `    content-visibility: auto;
+    contain-intrinsic-size: auto 400px;`,
+    scroller: `    display: flex;
+    gap: 16px;
+    width: round(down, 100%, 1px);
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory;`,
+    slide: `    flex: 0 0 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    scroll-snap-align: center;`,
+  },
+  {
+    file: "test_contain.html",
+    name: "contain",
+    mode: "slides",
+    scroller: `    display: flex;
+    gap: 16px;
+    width: round(down, 100%, 1px);
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory;
+    contain: strict;`,
+    slide: `    flex: 0 0 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    scroll-snap-align: center;`,
+  },
+  {
+    file: "test_absolute.html",
+    name: "absolute",
+    mode: "boxes",
+    scroller: `    width: 2000px;
+    height: 2000px;
+    position: relative;
+    overflow-x: auto;`,
+    slide: null,
+  },
+];
+
+const testPage = ({ name, mode, tile, scroller, slide }) => `<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>${name}</title>
+<style>
+  :root { color-scheme: light dark; }
+
+  body {
+    margin: 0;
+    font: 13px/1.4 system-ui, sans-serif;
+  }
+
+  #bar {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 10;
+    padding: 6px 10px;
+    background: #111;
+    color: #eee;
+    font-variant-numeric: tabular-nums;
+  }
+
+  #list { padding-top: 34px; }
+
+  .tile {
+    padding: 8px 16px 24px;${tile ? `\n${tile}` : ""}
+  }
+
+  .scroller {
+    scrollbar-width: none;
+${scroller}
+  }
+
+  .scroller::-webkit-scrollbar { display: none; }
+${slide ? `\n  .slide {\n${slide}\n  }\n` : ""}
+  .box {
+    width: 200px;
+    height: 200px;
+    background: #c0c6d0;
+  }
+${mode === "boxes" ? Array.from({ length: 10 }, (_, index) => `
+  .box:nth-child(${index + 1}) { position: absolute; left: ${index * 216}px; top: 0 }`).join("") : ""}
+</style>
+
+<div id="bar"></div>
+<div id="list"></div>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  const size = (key, fallback) => {
+    const value = Number(params.get(key));
+    return Number.isFinite(value) && value > 0 ? value : fallback;
+  };
+
+  const TILES = size("tiles", 1000);
+  const SLIDES = size("slides", 10);
+  const NESTED = ${mode === "slides"};
+
+  const fragment = document.createDocumentFragment();
+
+  for (let tile = 0; tile < TILES; tile++) {
+    const row = document.createElement("div");
+    row.className = "tile";
+
+    const scroller = document.createElement("div");
+    scroller.className = "scroller";
+
+    for (let slide = 0; slide < SLIDES; slide++) {
+      const box = document.createElement("div");
+      box.className = "box";
+      if (NESTED) {
+        const cell = document.createElement("div");
+        cell.className = "slide";
+        cell.appendChild(box);
+        scroller.appendChild(cell);
+      } else {
+        scroller.appendChild(box);
+      }
+    }
+
+    row.appendChild(scroller);
+    fragment.appendChild(row);
+  }
+
+  document.getElementById("list").appendChild(fragment);
+  document.getElementById("bar").textContent =
+    "${name} \u2014 " + TILES + " rows \u00d7 " + SLIDES + " slides, " +
+    document.getElementsByTagName("*").length + " elements";
+</script>
+`;
+
 const card = ({ file, name, about, css }) => `  <li>
     <div class="head">
       <h2>${name}</h2>
@@ -412,5 +596,8 @@ ${DEMOS.map(card).join("\n")}
 for (const demo of DEMOS) {
   writeFileSync(new URL(demo.file, import.meta.url), demoPage(demo));
 }
+for (const scenario of TESTS) {
+  writeFileSync(new URL(scenario.file, import.meta.url), testPage(scenario));
+}
 writeFileSync(new URL("index.html", import.meta.url), index);
-console.log(`generated ${DEMOS.length} demos + index`);
+console.log(`generated ${DEMOS.length} demos, ${TESTS.length} tests + index`);

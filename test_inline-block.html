@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>inline-block</title>
+<style>
+  :root { color-scheme: light dark; }
+
+  body {
+    margin: 0;
+    font: 13px/1.4 system-ui, sans-serif;
+  }
+
+  #bar {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 10;
+    padding: 6px 10px;
+    background: #111;
+    color: #eee;
+    font-variant-numeric: tabular-nums;
+  }
+
+  #list { padding-top: 34px; }
+
+  .tile {
+    padding: 8px 16px 24px;
+  }
+
+  .scroller {
+    scrollbar-width: none;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory;
+    white-space: nowrap;
+    aspect-ratio: 1 / 1;
+  }
+
+  .scroller::-webkit-scrollbar { display: none; }
+
+  .slide {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    scroll-snap-align: center;
+  }
+
+  .box {
+    width: 200px;
+    height: 200px;
+    background: #c0c6d0;
+  }
+
+</style>
+
+<div id="bar"></div>
+<div id="list"></div>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  const size = (key, fallback) => {
+    const value = Number(params.get(key));
+    return Number.isFinite(value) && value > 0 ? value : fallback;
+  };
+
+  const TILES = size("tiles", 1000);
+  const SLIDES = size("slides", 10);
+  const NESTED = true;
+
+  const fragment = document.createDocumentFragment();
+
+  for (let tile = 0; tile < TILES; tile++) {
+    const row = document.createElement("div");
+    row.className = "tile";
+
+    const scroller = document.createElement("div");
+    scroller.className = "scroller";
+
+    for (let slide = 0; slide < SLIDES; slide++) {
+      const box = document.createElement("div");
+      box.className = "box";
+      if (NESTED) {
+        const cell = document.createElement("div");
+        cell.className = "slide";
+        cell.appendChild(box);
+        scroller.appendChild(cell);
+      } else {
+        scroller.appendChild(box);
+      }
+    }
+
+    row.appendChild(scroller);
+    fragment.appendChild(row);
+  }
+
+  document.getElementById("list").appendChild(fragment);
+  document.getElementById("bar").textContent =
+    "inline-block — " + TILES + " rows × " + SLIDES + " slides, " +
+    document.getElementsByTagName("*").length + " elements";
+</script>
