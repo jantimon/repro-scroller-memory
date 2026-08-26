@@ -154,7 +154,7 @@ const card = ({ file, name, about, css }) => `  <li>
        aria-label="Source code for ${name} on GitHub"><span>Source code</span>
       <svg class="gh" aria-hidden="true"><use href="#github"></use></svg></a>
     <pre class="css">${css}</pre>
-    <a class="run" href="${file}">Run ${name}</a>
+    <a class="run" href="${file}" target="_blank" rel="noopener">Run ${name}</a>
   </li>`;
 
 const index = `<!doctype html>
