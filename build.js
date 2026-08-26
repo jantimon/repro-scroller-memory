@@ -10,10 +10,32 @@ const REPO = "https://github.com/jantimon/repro-scroller-memory";
 
 const DEMOS = [
   {
+    file: "noscroller.html",
+    name: "noscroller",
+    about:
+      "Baseline. The same boxes in the same flex layout, with nothing scrollable. Renders and stays flat.",
+    css: `overflow: hidden;`,
+    rules: null,
+  },
+  {
+    file: "nosnap.html",
+    name: "nosnap",
+    about:
+      "Scrollable, nothing snaps. Breaks on its own \u2014 the scroll container is enough, snapping is not required.",
+    css: `overflow-x: auto;`,
+    rules: `    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+  }
+
+  .scroller::-webkit-scrollbar {
+    display: none;`,
+  },
+  {
     file: "full.html",
     name: "full",
     about:
-      "Every row is its own scroll container and snaps. This is the shape a product tile takes when each one carries a swipe gallery.",
+      "Scrollable and snapping. The shape a list takes when every row carries its own gallery.",
     css: `overflow-x: auto;\nscroll-snap-type: x mandatory;`,
     rules: `    overflow-x: auto;
     overscroll-behavior-inline: contain;
@@ -28,28 +50,6 @@ const DEMOS = [
   .slide {
     scroll-snap-align: center;
     scroll-snap-stop: always;`,
-  },
-  {
-    file: "nosnap.html",
-    name: "nosnap",
-    about:
-      "Scrollable, but nothing snaps. Separates the cost of the scroll container from the cost of scroll snapping.",
-    css: `overflow-x: auto;`,
-    rules: `    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-    scrollbar-width: none;
-  }
-
-  .scroller::-webkit-scrollbar {
-    display: none;`,
-  },
-  {
-    file: "noscroller.html",
-    name: "noscroller",
-    about:
-      "The same boxes in the same flex layout, with nothing scrollable. The baseline every other page is measured against.",
-    css: `overflow: hidden;`,
-    rules: null,
   },
 ];
 
@@ -258,6 +258,11 @@ const index = `<!doctype html>
 
   .run:hover { background: #344054 }
 
+  .size { display: flex; align-items: center; gap: 0.5rem; margin: 1.25rem 0 0 }
+  .size label { color: #666 }
+  .size select { font: inherit; padding: 0.35rem 0.5rem; border: 1px solid #d0d5dd;
+       border-radius: 8px; background: #fff; color: inherit }
+
   footer { margin-top: 2.5rem; color: #666; font-size: 0.9375rem; max-width: 44rem }
 </style>
 
@@ -275,12 +280,36 @@ const index = `<!doctype html>
   <p>On an iPhone 13 Pro (iOS 26), <code>full</code> reaches 8.2 GB in 17 seconds and the
   WebContent process is killed at its 1536 MB limit. <code>noscroller</code> renders the
   same boxes and stays flat. The iOS Simulator shows no difference between them.</p>
-  <p>Size them with <code>?tiles=</code> and <code>?slides=</code>.</p>
+  <p class="size">
+    <label for="tiles">Rows per page</label>
+    <select id="tiles">
+      <option>100</option>
+      <option>500</option>
+      <option>750</option>
+      <option selected>1000</option>
+      <option>2000</option>
+    </select>
+  </p>
 </header>
 
 <ul class="demos">
 ${DEMOS.map(card).join("\n")}
 </ul>
+
+<script>
+  const tiles = document.getElementById("tiles");
+  const links = [...document.querySelectorAll(".run")];
+  const base = links.map((link) => link.getAttribute("href"));
+
+  const apply = () => {
+    links.forEach((link, index) => {
+      link.setAttribute("href", base[index] + "?tiles=" + tiles.value);
+    });
+  };
+
+  tiles.addEventListener("change", apply);
+  apply();
+</script>
 
 <footer>
   <p>Found while tracing WKWebView content-process kills on a long list where every row
