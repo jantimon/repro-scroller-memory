@@ -5,6 +5,7 @@
  * page can be handed to someone as the whole reproduction.
  */
 import { writeFileSync } from "node:fs";
+import { VARIANTS } from "./variants.js";
 
 const REPO = "https://github.com/jantimon/repro-scroller-memory";
 
@@ -208,90 +209,9 @@ ${runtime(name, true)}`;
  * `mode` picks the markup: "slides" nests a box in a slide, "boxes" puts the
  * boxes straight in the scroller.
  */
-const TESTS = [
-  {
-    file: "test_inline-block.html",
-    name: "inline-block",
-    mode: "slides",
-    scroller: `    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-    scroll-snap-type: x mandatory;
-    white-space: nowrap;
-    aspect-ratio: 1 / 1;`,
-    slide: `    display: inline-block;
-    width: 100%;
-    text-align: center;
-    scroll-snap-align: center;`,
-  },
-  {
-    file: "test_overflow-auto.html",
-    name: "overflow-auto",
-    mode: "slides",
-    scroller: `    display: flex;
-    gap: 16px;
-    width: round(down, 100%, 1px);
-    aspect-ratio: 1 / 1;
-    overflow: auto;
-    overscroll-behavior-inline: contain;
-    scroll-snap-type: x mandatory;`,
-    slide: `    flex: 0 0 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    scroll-snap-align: center;`,
-  },
-  {
-    file: "test_content-visibility.html",
-    name: "content-visibility",
-    mode: "slides",
-    tile: `    content-visibility: auto;
-    contain-intrinsic-size: auto 400px;`,
-    scroller: `    display: flex;
-    gap: 16px;
-    width: round(down, 100%, 1px);
-    aspect-ratio: 1 / 1;
-    overflow: hidden;
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-    scroll-snap-type: x mandatory;`,
-    slide: `    flex: 0 0 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    scroll-snap-align: center;`,
-  },
-  {
-    file: "test_contain.html",
-    name: "contain",
-    mode: "slides",
-    scroller: `    display: flex;
-    gap: 16px;
-    width: round(down, 100%, 1px);
-    aspect-ratio: 1 / 1;
-    overflow: hidden;
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-    scroll-snap-type: x mandatory;
-    contain: strict;`,
-    slide: `    flex: 0 0 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    scroll-snap-align: center;`,
-  },
-  {
-    file: "test_absolute.html",
-    name: "absolute",
-    mode: "boxes",
-    scroller: `    width: 2000px;
-    height: 2000px;
-    position: relative;
-    overflow-x: auto;`,
-    slide: null,
-  },
-];
+const TESTS = VARIANTS;
 
-const testPage = ({ name, mode, tile, scroller, slide }) => `<!doctype html>
+const testPage = ({ name, mode, tile, scroller, slide, css, extra }) => `<!doctype html>
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -332,14 +252,14 @@ ${slide ? `\n  .slide {\n${slide}\n  }\n` : ""}
     height: 200px;
     background: #c0c6d0;
   }
-${mode === "boxes" ? Array.from({ length: 10 }, (_, index) => `
+${css ? `\n${css}\n` : ""}${mode === "boxes" ? Array.from({ length: 10 }, (_, index) => `
   .box:nth-child(${index + 1}) { position: absolute; left: ${index * 216}px; top: 0 }`).join("") : ""}
 </style>
 
 <div id="bar"></div>
 <div id="list"></div>
 
-${runtime(name, mode === "slides")}`;
+${runtime(name, mode === "slides")}${extra ? `\n<script>\n${extra}\n<\\/script>\n` : ""}`;
 
 const card = ({ file, name, about, css }) => `  <li>
     <div class="head">
