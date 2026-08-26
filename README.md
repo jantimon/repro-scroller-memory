@@ -9,6 +9,7 @@ scrollable.
 | `noscroller.html` | `overflow: hidden` | renders, stays flat |
 | `content-visibility.html` | `overflow-x: auto` + `content-visibility: auto` | renders, stays flat |
 | `inview.html` | `overflow-x: auto` only while near the viewport | renders, stays flat |
+| `inview-timeline.html` | as `inview`, plus a scroll timeline per row | renders, but scrolls at 24 fps |
 | `full.html` | `overflow-x: auto` | **killed** |
 
 The scroll container alone is enough. Snapping, flex, the slide wrapper, `contain` in
@@ -18,12 +19,11 @@ scroll containers at any moment.
 
 <img width="315" height="684" alt="safari showing a memory error" src="https://github.com/user-attachments/assets/a6e6b932-4980-4ebd-97d5-3f886dfbd8b0" />
 
-Two further variants, not linked from the index:
+One further variant, not linked from the index:
 
 | page | |
 | --- | --- |
 | `test_inview-scrollend.html` | as `inview`, but the classes are applied on `scrollend` so nothing mutates mid-gesture |
-| `test_inview-timeline.html` | as `inview`, with a scroll timeline reading each row and one timeline name per row |
 
 ## Running them
 
@@ -50,7 +50,7 @@ iPhone 17 Pro, iOS 26, 1000 rows:
 | `content-visibility.html` | 59 | 17 ms | 17 ms | 1 |
 | `inview.html` | 59 | 17 ms | 17 ms | 1 |
 | `test_inview-scrollend.html` | 59 | 17 ms | 17 ms | 1 |
-| `test_inview-timeline.html` | **24** | **41 ms** | **65 ms** | **189** |
+| `inview-timeline.html` | **24** | **41 ms** | **65 ms** | **189** |
 
 Holding the scroll containers back costs nothing in frame time. A scroll timeline
 reading those containers costs half the frame rate — and `inview` does not rescue it,

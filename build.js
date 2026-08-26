@@ -68,6 +68,57 @@ content-visibility: auto;`,
   for (const tile of document.querySelectorAll(".tile")) watcher.observe(tile);`,
   },
   {
+    file: "inview-timeline.html",
+    name: "inview-timeline",
+    about:
+      "As inview, with a scroll timeline reading each row and one timeline name per row. Survives, but scrolls at 24 fps against 59.",
+    css: `overflow-x: auto;\nscroll-timeline: var(--row) inline;`,
+    tile: `    timeline-scope: var(--row);`,
+    rules: null,
+    style: `  .scroller.is-live {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+    scroll-timeline: var(--row) inline;
+  }
+
+  .scroller.is-live::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tile::after {
+    content: "";
+    display: block;
+    height: 4px;
+    margin-top: 8px;
+    background: #8a94a6;
+    animation: sweep linear both;
+    animation-timeline: var(--row);
+  }
+
+  @keyframes sweep {
+    from { width: 10% }
+    to { width: 100% }
+  }`,
+    extra: `  // A name per row: WebKit resolves a single name shared across hundreds of
+  // elements very slowly.
+  document.querySelectorAll(".tile").forEach((tile, index) => {
+    tile.style.setProperty("--row", "--row" + index);
+  });
+
+  const watcher = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        entry.target
+          .querySelector(".scroller")
+          ?.classList.toggle("is-live", entry.isIntersecting);
+      }
+    },
+    { rootMargin: window.innerHeight * 2 + "px" },
+  );
+  for (const tile of document.querySelectorAll(".tile")) watcher.observe(tile);`,
+  },
+  {
     file: "full.html",
     name: "full",
     about:

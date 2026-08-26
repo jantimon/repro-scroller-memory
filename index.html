@@ -238,6 +238,18 @@ content-visibility: auto;</pre>
   </li>
   <li>
     <div class="head">
+      <h2>inview-timeline</h2>
+      <p class="about">As inview, with a scroll timeline reading each row and one timeline name per row. Survives, but scrolls at 24 fps against 59.</p>
+    </div>
+    <a class="source" href="https://github.com/jantimon/repro-scroller-memory/blob/main/inview-timeline.html" target="_blank" rel="noopener"
+       aria-label="Source code for inview-timeline on GitHub"><span>Source code</span>
+      <svg class="gh" aria-hidden="true"><use href="#github"></use></svg></a>
+    <pre class="css">overflow-x: auto;
+scroll-timeline: var(--row) inline;</pre>
+    <a class="run" href="inview-timeline.html" target="_blank" rel="noopener">Run inview-timeline</a>
+  </li>
+  <li>
+    <div class="head">
       <h2>full</h2>
       <p class="about">Every row is its own scroll container. This alone is enough to kill the page — snapping is not required.</p>
     </div>
