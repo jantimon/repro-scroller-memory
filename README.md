@@ -39,6 +39,23 @@ Each page is standalone, with inline CSS and inline JS, so a single file is the 
 reproduction. `build.js` generates them from `variants.js`; run `node build.js` after
 editing either.
 
+## Scrolling
+
+`?scroll-down` drives the page to the bottom at a fixed step per frame and records the
+frame intervals, so the numbers describe the page rather than how fast a finger moved.
+iPhone 17 Pro, iOS 26, 1000 rows:
+
+| page | fps | median | p90 | frames over 50 ms |
+| --- | --- | --- | --- | --- |
+| `content-visibility.html` | 59 | 17 ms | 17 ms | 1 |
+| `inview.html` | 59 | 17 ms | 17 ms | 1 |
+| `test_inview-scrollend.html` | 59 | 17 ms | 17 ms | 1 |
+| `test_inview-timeline.html` | **24** | **41 ms** | **65 ms** | **189** |
+
+Holding the scroll containers back costs nothing in frame time. A scroll timeline
+reading those containers costs half the frame rate — and `inview` does not rescue it,
+because the timeline is the expense rather than the container.
+
 ## Measured
 
 iPhone, iOS 26, mobile Safari. Kernel log read with `idevicesyslog`:
