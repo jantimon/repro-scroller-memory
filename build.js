@@ -260,7 +260,7 @@ ${css ? `\n${css}\n` : ""}${mode === "boxes" ? Array.from({ length: 10 }, (_, in
 <div id="bar"></div>
 <div id="list"></div>
 
-${runtime(name, mode === "slides")}${extra ? `\n<script>\n${extra}\n<\\/script>\n` : ""}`;
+${runtime(name, mode === "slides")}${extra ? `\n<script>\n${extra}\n<\/script>\n` : ""}`;
 
 const card = ({ file, name, about, css }) => `  <li>
     <div class="head">
