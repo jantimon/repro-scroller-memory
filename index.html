@@ -23,15 +23,6 @@
   .repo:hover { color: #101828 }
   .repo .gh { align-self: center }
 
-  /* One line per page, so the numbers can be scanned instead of read. */
-  .facts { margin: 1rem 0 0; padding: 0; list-style: none; display: grid; gap: 0.4rem;
-       max-width: 44rem }
-  .facts li { display: grid; grid-template-columns: 8rem 1fr; gap: 0.75rem;
-       font-size: 0.9375rem; color: #475467 }
-  .facts b { color: #101828; font: 600 0.875rem/1.6 ui-monospace, monospace }
-  @media (max-width: 30rem) {
-    .facts li { grid-template-columns: 1fr; gap: 0.1rem }
-  }
   code { font-size: 0.9em; background: #f2f4f7; padding: 0.1em 0.35em; border-radius: 4px }
 
   /* min() so a narrow phone can't push a 18rem column past the viewport */
@@ -199,13 +190,9 @@
   <p>These pages reproduce a Safari crash on iOS: a long list where every row is its
   own horizontal scroller. 1000 flex rows of 10 full-width slides, no images, no
   libraries, ~21,000 elements. They differ only in how the row is made scrollable.</p>
-  <ul class="facts">
-    <li><b>full</b><span>8.2 GB in 17 seconds on an iPhone (iOS 26), then killed at
-    WebContent's 1536 MB limit.</span></li>
-    <li><b>noscroller</b><span>The same boxes with nothing scrollable. Stays flat.</span></li>
-    <li><b>Simulator</b><span>No difference between any of them. This does not reproduce
-    there.</span></li>
-  </ul>
+  <p>On an iPhone (iOS 26), <code>full</code> reaches 8.2 GB in 17 seconds and the
+  WebContent process is killed at its 1536 MB limit. The iOS Simulator shows no
+  difference between any of them.</p>
 </header>
 
   <div class="size">
@@ -277,7 +264,7 @@ scroll-timeline: var(--row) inline;</pre>
   <li>
     <div class="head">
       <h2>full</h2>
-      <p class="about">Every row is its own scroll container. This alone is enough to kill the page — snapping is not required.</p>
+      <p class="about">Every row is its own scroll container. This alone is enough to kill the page. Snapping is not required.</p>
     </div>
     <a class="source" href="https://github.com/jantimon/repro-scroller-memory/blob/main/full.html" target="_blank" rel="noopener"
        aria-label="Source code for full on GitHub"><span>Source code</span>
@@ -307,7 +294,7 @@ scroll-timeline: var(--row) inline;</pre>
     </tbody>
   </table>
   <p class="caveat">Measured on BrowserStack real devices. More RAM did not help, and the
-  oldest and weakest device was the only one to render every row — so the variable looks
+  oldest and weakest device was the only one to render every row, so the variable looks
   like the iOS version rather than the hardware. Failures were reported as socket
   timeouts, which cannot always be told apart from a killed web view, so read these as a
   floor rather than an exact limit.</p>
