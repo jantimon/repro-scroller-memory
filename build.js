@@ -19,20 +19,6 @@ const DEMOS = [
     rules: null,
   },
   {
-    file: "full.html",
-    name: "full",
-    about:
-      "Every row is its own scroll container. This alone is enough to kill the page — snapping is not required.",
-    css: `overflow-x: auto;`,
-    rules: `    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-    scrollbar-width: none;
-  }
-
-  .scroller::-webkit-scrollbar {
-    display: none;`,
-  },
-  {
     file: "content-visibility.html",
     name: "content-visibility",
     about:
@@ -43,6 +29,20 @@ const DEMOS = [
 content-visibility: auto;`,
     tile: `    content-visibility: auto;
     contain-intrinsic-size: auto 400px;`,
+    rules: `    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+  }
+
+  .scroller::-webkit-scrollbar {
+    display: none;`,
+  },
+  {
+    file: "full.html",
+    name: "full",
+    about:
+      "Every row is its own scroll container. This alone is enough to kill the page — snapping is not required.",
+    css: `overflow-x: auto;`,
     rules: `    overflow-x: auto;
     overscroll-behavior-inline: contain;
     scrollbar-width: none;
@@ -514,15 +514,21 @@ ${DEMOS.map(card).join("\n")}
     </div>
     <div class="pane">
       <h3>CSS</h3>
-      <div class="shj-lang-css">.scroller {
+      <div class="shj-lang-css">.tile {
+  padding: 8px 16px 24px;
+
+  content-visibility: auto;          /* content-visibility only */
+  contain-intrinsic-size: auto 400px;
+}
+
+.scroller {
   display: flex;
   gap: 16px;
   width: round(down, 100%, 1px);
   aspect-ratio: 1 / 1;
   overflow: hidden;
 
-  overflow-x: auto;              /* nosnap + full */
-  scroll-snap-type: x mandatory; /* full only */
+  overflow-x: auto;                  /* full + content-visibility */
 }
 
 .slide {

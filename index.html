@@ -204,17 +204,6 @@
   </li>
   <li>
     <div class="head">
-      <h2>full</h2>
-      <p class="about">Every row is its own scroll container. This alone is enough to kill the page — snapping is not required.</p>
-    </div>
-    <a class="source" href="https://github.com/jantimon/repro-scroller-memory/blob/main/full.html" target="_blank" rel="noopener"
-       aria-label="Source code for full on GitHub"><span>Source code</span>
-      <svg class="gh" aria-hidden="true"><use href="#github"></use></svg></a>
-    <pre class="css">overflow-x: auto;</pre>
-    <a class="run" href="full.html" target="_blank" rel="noopener">Run full</a>
-  </li>
-  <li>
-    <div class="head">
       <h2>content-visibility</h2>
       <p class="about">The same scroll containers, with the row opted out of rendering while offscreen. Survives where full does not.</p>
     </div>
@@ -226,6 +215,17 @@
 /* on the row */
 content-visibility: auto;</pre>
     <a class="run" href="content-visibility.html" target="_blank" rel="noopener">Run content-visibility</a>
+  </li>
+  <li>
+    <div class="head">
+      <h2>full</h2>
+      <p class="about">Every row is its own scroll container. This alone is enough to kill the page — snapping is not required.</p>
+    </div>
+    <a class="source" href="https://github.com/jantimon/repro-scroller-memory/blob/main/full.html" target="_blank" rel="noopener"
+       aria-label="Source code for full on GitHub"><span>Source code</span>
+      <svg class="gh" aria-hidden="true"><use href="#github"></use></svg></a>
+    <pre class="css">overflow-x: auto;</pre>
+    <a class="run" href="full.html" target="_blank" rel="noopener">Run full</a>
   </li>
 </ul>
 
@@ -273,15 +273,21 @@ content-visibility: auto;</pre>
     </div>
     <div class="pane">
       <h3>CSS</h3>
-      <div class="shj-lang-css">.scroller {
+      <div class="shj-lang-css">.tile {
+  padding: 8px 16px 24px;
+
+  content-visibility: auto;          /* content-visibility only */
+  contain-intrinsic-size: auto 400px;
+}
+
+.scroller {
   display: flex;
   gap: 16px;
   width: round(down, 100%, 1px);
   aspect-ratio: 1 / 1;
   overflow: hidden;
 
-  overflow-x: auto;              /* nosnap + full */
-  scroll-snap-type: x mandatory; /* full only */
+  overflow-x: auto;                  /* full + content-visibility */
 }
 
 .slide {
