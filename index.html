@@ -167,10 +167,11 @@
   <h1>Scroller memory repro</h1>
   <p>Three pages rendering 1000 flex rows of 10 full-width slides, each holding a
   200×200 box. No images, no libraries, ~21,000 elements. They differ only in whether
-  the row is a scroll container and whether it snaps.</p>
+  the row is a scroll container, and whether it is opted out of rendering offscreen.</p>
   <p>On an iPhone (iOS 26), <code>full</code> reaches 8.2 GB in 17 seconds and the
   WebContent process is killed at its 1536 MB limit. <code>noscroller</code> renders the
-  same boxes and stays flat. The iOS Simulator shows no difference between them.</p>
+  same boxes and stays flat, and <code>content-visibility</code> keeps the scroll
+  containers but survives. The iOS Simulator shows no difference between any of them.</p>
 </header>
 
   <div class="size">
@@ -203,26 +204,28 @@
   </li>
   <li>
     <div class="head">
-      <h2>nosnap</h2>
-      <p class="about">Scrollable, nothing snaps. Breaks on its own — the scroll container is enough, snapping is not required.</p>
-    </div>
-    <a class="source" href="https://github.com/jantimon/repro-scroller-memory/blob/main/nosnap.html" target="_blank" rel="noopener"
-       aria-label="Source code for nosnap on GitHub"><span>Source code</span>
-      <svg class="gh" aria-hidden="true"><use href="#github"></use></svg></a>
-    <pre class="css">overflow-x: auto;</pre>
-    <a class="run" href="nosnap.html" target="_blank" rel="noopener">Run nosnap</a>
-  </li>
-  <li>
-    <div class="head">
       <h2>full</h2>
-      <p class="about">Scrollable and snapping. The shape a list takes when every row carries its own gallery.</p>
+      <p class="about">Every row is its own scroll container. This alone is enough to kill the page — snapping is not required.</p>
     </div>
     <a class="source" href="https://github.com/jantimon/repro-scroller-memory/blob/main/full.html" target="_blank" rel="noopener"
        aria-label="Source code for full on GitHub"><span>Source code</span>
       <svg class="gh" aria-hidden="true"><use href="#github"></use></svg></a>
-    <pre class="css">overflow-x: auto;
-scroll-snap-type: x mandatory;</pre>
+    <pre class="css">overflow-x: auto;</pre>
     <a class="run" href="full.html" target="_blank" rel="noopener">Run full</a>
+  </li>
+  <li>
+    <div class="head">
+      <h2>content-visibility</h2>
+      <p class="about">The same scroll containers, with the row opted out of rendering while offscreen. Survives where full does not.</p>
+    </div>
+    <a class="source" href="https://github.com/jantimon/repro-scroller-memory/blob/main/content-visibility.html" target="_blank" rel="noopener"
+       aria-label="Source code for content-visibility on GitHub"><span>Source code</span>
+      <svg class="gh" aria-hidden="true"><use href="#github"></use></svg></a>
+    <pre class="css">overflow-x: auto;
+
+/* on the row */
+content-visibility: auto;</pre>
+    <a class="run" href="content-visibility.html" target="_blank" rel="noopener">Run content-visibility</a>
   </li>
 </ul>
 

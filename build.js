@@ -19,10 +19,10 @@ const DEMOS = [
     rules: null,
   },
   {
-    file: "nosnap.html",
-    name: "nosnap",
+    file: "full.html",
+    name: "full",
     about:
-      "Scrollable, nothing snaps. Breaks on its own \u2014 the scroll container is enough, snapping is not required.",
+      "Every row is its own scroll container. This alone is enough to kill the page — snapping is not required.",
     css: `overflow-x: auto;`,
     rules: `    overflow-x: auto;
     overscroll-behavior-inline: contain;
@@ -33,24 +33,23 @@ const DEMOS = [
     display: none;`,
   },
   {
-    file: "full.html",
-    name: "full",
+    file: "content-visibility.html",
+    name: "content-visibility",
     about:
-      "Scrollable and snapping. The shape a list takes when every row carries its own gallery.",
-    css: `overflow-x: auto;\nscroll-snap-type: x mandatory;`,
+      "The same scroll containers, with the row opted out of rendering while offscreen. Survives where full does not.",
+    css: `overflow-x: auto;
+
+/* on the row */
+content-visibility: auto;`,
+    tile: `    content-visibility: auto;
+    contain-intrinsic-size: auto 400px;`,
     rules: `    overflow-x: auto;
     overscroll-behavior-inline: contain;
-    scroll-snap-type: x mandatory;
     scrollbar-width: none;
   }
 
   .scroller::-webkit-scrollbar {
-    display: none;
-  }
-
-  .slide {
-    scroll-snap-align: center;
-    scroll-snap-stop: always;`,
+    display: none;`,
   },
 ];
 
@@ -145,7 +144,7 @@ const runtime = (name, nested) => `<script>
 <\/script>
 `;
 
-const demoPage = ({ name, rules }) => `<!doctype html>
+const demoPage = ({ name, rules, tile }) => `<!doctype html>
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -170,12 +169,14 @@ const demoPage = ({ name, rules }) => `<!doctype html>
 
   #list { padding-top: 34px; }
 
-  .tile { padding: 8px 16px 24px; }
+  .tile {
+    padding: 8px 16px 24px;${tile ? `\n${tile}` : ""}
+  }
 
   .scroller {
     display: flex;
     gap: 16px;
-    /* Whole pixels: at a fractional width a snapped slide stops a fraction short. */
+    /* Whole pixels: at a fractional width a slide would otherwise stop a fraction short. */
     width: round(down, 100%, 1px);
     aspect-ratio: 1 / 1;
     overflow: hidden;${rules ? `\n${rules}` : ""}
@@ -442,10 +443,11 @@ const index = `<!doctype html>
   <h1>Scroller memory repro</h1>
   <p>Three pages rendering 1000 flex rows of 10 full-width slides, each holding a
   200×200 box. No images, no libraries, ~21,000 elements. They differ only in whether
-  the row is a scroll container and whether it snaps.</p>
+  the row is a scroll container, and whether it is opted out of rendering offscreen.</p>
   <p>On an iPhone (iOS 26), <code>full</code> reaches 8.2 GB in 17 seconds and the
   WebContent process is killed at its 1536 MB limit. <code>noscroller</code> renders the
-  same boxes and stays flat. The iOS Simulator shows no difference between them.</p>
+  same boxes and stays flat, and <code>content-visibility</code> keeps the scroll
+  containers but survives. The iOS Simulator shows no difference between any of them.</p>
 </header>
 
   <div class="size">

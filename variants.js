@@ -22,6 +22,14 @@ const scrollable = (extra = "") => `${FLEX_ROW}
     scroll-snap-type: x mandatory;${extra ? `\n${extra}` : ""}`;
 
 export const VARIANTS = [
+  {
+    file: "test_snap.html",
+    name: "snap",
+    mode: "slides",
+    // Kept for the record: snapping on top of a scroll container changes nothing.
+    scroller: scrollable(),
+    slide: FLEX_SLIDE,
+  },
   // ---- different ways of being scrollable ----
   {
     file: "test_overflow-scroll.html",
@@ -357,15 +365,6 @@ export const VARIANTS = [
     overflow: auto;
     overscroll-behavior-inline: contain;
     scroll-snap-type: x mandatory;`,
-    slide: FLEX_SLIDE,
-  },
-  {
-    file: "test_content-visibility.html",
-    name: "content-visibility",
-    mode: "slides",
-    tile: `    content-visibility: auto;
-    contain-intrinsic-size: auto 400px;`,
-    scroller: scrollable(),
     slide: FLEX_SLIDE,
   },
   {

@@ -2,7 +2,7 @@
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>nosnap</title>
+<title>snap</title>
 <style>
   :root { color-scheme: light dark; }
 
@@ -23,29 +23,30 @@
 
   #list { padding-top: 34px; }
 
-  .tile { padding: 8px 16px 24px; }
+  .tile {
+    padding: 8px 16px 24px;
+  }
 
   .scroller {
+    scrollbar-width: none;
     display: flex;
     gap: 16px;
-    /* Whole pixels: at a fractional width a snapped slide stops a fraction short. */
     width: round(down, 100%, 1px);
     aspect-ratio: 1 / 1;
     overflow: hidden;
     overflow-x: auto;
     overscroll-behavior-inline: contain;
-    scrollbar-width: none;
+    scroll-snap-type: x mandatory;
   }
 
-  .scroller::-webkit-scrollbar {
-    display: none;
-  }
+  .scroller::-webkit-scrollbar { display: none; }
 
   .slide {
     flex: 0 0 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+    scroll-snap-align: center;
   }
 
   .box {
@@ -53,6 +54,7 @@
     height: 200px;
     background: #c0c6d0;
   }
+
 </style>
 
 <div id="bar"></div>
@@ -68,7 +70,7 @@
   const TILES = size("tiles", 1000);
   const SLIDES = size("slides", 10);
   const NESTED = true;
-  const NAME = "nosnap";
+  const NAME = "snap";
 
   const record = (phase, extra) => {
     const state = { page: NAME, rows: TILES, phase, ...extra };

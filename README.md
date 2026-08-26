@@ -7,11 +7,12 @@ a scroll container and whether it snaps.
 | page | CSS on the row | iPhone |
 | --- | --- | --- |
 | `noscroller.html` | `overflow: hidden` | renders, stays flat |
-| `nosnap.html` | `overflow-x: auto` | killed |
-| `full.html` | `overflow-x: auto` + `scroll-snap-type: x mandatory` | killed |
+| `full.html` | `overflow-x: auto` | killed |
+| `content-visibility.html` | `overflow-x: auto` + `content-visibility: auto` | renders, stays flat |
 
-`nosnap` breaking on its own is the point: the scroll container is enough, snapping is
-not required.
+The scroll container alone is enough — snapping, flex and the slide wrapper are all
+irrelevant. Opting the row out of rendering while it is offscreen avoids the cost while
+keeping the scroll container.
 
 Size them with `?tiles=` and `?slides=`.
 

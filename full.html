@@ -23,28 +23,24 @@
 
   #list { padding-top: 34px; }
 
-  .tile { padding: 8px 16px 24px; }
+  .tile {
+    padding: 8px 16px 24px;
+  }
 
   .scroller {
     display: flex;
     gap: 16px;
-    /* Whole pixels: at a fractional width a snapped slide stops a fraction short. */
+    /* Whole pixels: at a fractional width a slide would otherwise stop a fraction short. */
     width: round(down, 100%, 1px);
     aspect-ratio: 1 / 1;
     overflow: hidden;
     overflow-x: auto;
     overscroll-behavior-inline: contain;
-    scroll-snap-type: x mandatory;
     scrollbar-width: none;
   }
 
   .scroller::-webkit-scrollbar {
     display: none;
-  }
-
-  .slide {
-    scroll-snap-align: center;
-    scroll-snap-stop: always;
   }
 
   .slide {
