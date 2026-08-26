@@ -105,6 +105,21 @@
   .size select { font: inherit; padding: 0.35rem 0.5rem; border: 1px solid #d0d5dd;
        border-radius: 8px; background: #fff; color: inherit }
 
+  /* On a phone the control scrolls away before the buttons it configures are
+     reachable, so it follows instead. The shadow only appears once it has left
+     its place in the flow. */
+  @media (max-width: 40rem) {
+    .size {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      margin: 1.25rem -1rem 0;
+      padding: 0.625rem 1rem;
+      background: #fff;
+      box-shadow: 0 1px 0 rgb(16 24 40 / 0.08), 0 6px 16px -8px rgb(16 24 40 / 0.28);
+    }
+  }
+
   .markup { margin-top: 1.5rem; border-radius: 12px; overflow: hidden; background: #fff;
        box-shadow: 0 0 0 1px rgb(16 24 40 / 0.06),
                    0 1px 2px rgb(16 24 40 / 0.06),
