@@ -56,6 +56,8 @@ Holding the scroll containers back costs nothing in frame time. A scroll timelin
 reading those containers costs half the frame rate — and `inview` does not rescue it,
 because the timeline is the expense rather than the container.
 
+https://github.com/user-attachments/assets/5f00b79b-7d54-4cf8-9525-3df6474cd06f
+
 ## Measured
 
 iPhone, iOS 26, mobile Safari. Kernel log read with `idevicesyslog`:
