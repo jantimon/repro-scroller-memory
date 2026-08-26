@@ -330,7 +330,9 @@ const index = `<!doctype html>
     list-style: none;
     padding: 0;
     margin: 2rem 0 0;
-    grid-template-columns: repeat(auto-fill, minmax(min(18rem, 100%), 1fr));
+    /* Wide enough that four cards land as two rows of two rather than three
+       and a stranded one. */
+    grid-template-columns: repeat(auto-fill, minmax(min(26rem, 100%), 1fr));
   }
 
   /* Each card takes its rows from the parent grid, so headings of one and two
@@ -352,8 +354,10 @@ const index = `<!doctype html>
   h2 { font-size: 1rem; margin: 0 }
   .about { margin: 0.25rem 0 0; color: #666; font-size: 0.875rem }
 
-  /* Right padding keeps the heading clear of the tab above it. */
-  .head { padding: 0.875rem 1rem; padding-right: 9.5rem }
+  .head { padding: 0.875rem 1rem }
+  /* Only the heading shares a line with the tab; the description below it runs
+     the full width of the card. */
+  .head h2 { padding-right: 8.5rem }
 
   /* Sits in the card's own top-right corner, folder-tab style. */
   .source {
@@ -379,7 +383,7 @@ const index = `<!doctype html>
   /* Too narrow for the words — the mark alone still says where it goes. */
   @media (max-width: 26rem) {
     .source span { display: none }
-    .head { padding-right: 3.75rem }
+    .head h2 { padding-right: 3rem }
   }
 
   .css {
