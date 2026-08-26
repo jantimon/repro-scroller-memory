@@ -190,9 +190,11 @@
   <p>These pages reproduce a Safari crash on iOS: a long list where every row is its
   own horizontal scroller. 1000 flex rows of 10 full-width slides, no images, no
   libraries, ~21,000 elements. They differ only in how the row is made scrollable.</p>
-  <p>On an iPhone (iOS 26), <code>full</code> reaches 8.2 GB in 17 seconds and the
-  WebContent process is killed at its 1536 MB limit. The iOS Simulator shows no
-  difference between any of them.</p>
+  <p>On an iPhone (iOS 26) Safari has a built-in limit of 1536 MB RAM.
+  <code>full</code> reaches 8.2 GB while building the page and is killed after 17
+  seconds, about 8 MB for each row of ten flat-coloured boxes. Chrome and Firefox on Android or
+  desktop render the same page without trouble. Only real iPhones reproduce this; the iOS
+  Simulator does not.</p>
 </header>
 
   <div class="size">
