@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>report</title>
+<body style="font: 14px/1.5 ui-monospace, monospace; padding: 1rem">
+<pre id="result">no run recorded</pre>
+<script>
+  try {
+    const raw = localStorage.getItem("run");
+    if (raw) {
+      document.getElementById("result").textContent = raw;
+      document.title = "report " + JSON.parse(raw).phase;
+    }
+  } catch (error) {
+    document.getElementById("result").textContent = "unreadable: " + error;
+  }
+</script>

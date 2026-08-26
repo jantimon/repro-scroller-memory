@@ -53,6 +53,97 @@ const DEMOS = [
   },
 ];
 
+
+/**
+ * The script every page runs. Progress is written to `document.title` and to
+ * `localStorage`, because a killed web view takes the console and the socket with
+ * it but leaves storage intact — so the run can still be read back afterwards.
+ *
+ * `?scroll-down` walks the page to the bottom and records that it got there.
+ */
+const runtime = (name, nested) => `<script>
+  const params = new URLSearchParams(location.search);
+  const size = (key, fallback) => {
+    const value = Number(params.get(key));
+    return Number.isFinite(value) && value > 0 ? value : fallback;
+  };
+
+  const TILES = size("tiles", 1000);
+  const SLIDES = size("slides", 10);
+  const NESTED = ${nested};
+  const NAME = ${JSON.stringify(name)};
+
+  const record = (phase, extra) => {
+    const state = { page: NAME, rows: TILES, phase, ...extra };
+    document.title = NAME + " " + TILES + " " + phase;
+    try {
+      localStorage.setItem("run", JSON.stringify(state));
+    } catch {}
+    return state;
+  };
+
+  record("start");
+
+  const fragment = document.createDocumentFragment();
+
+  for (let tile = 0; tile < TILES; tile++) {
+    const row = document.createElement("div");
+    row.className = "tile";
+
+    const scroller = document.createElement("div");
+    scroller.className = "scroller";
+
+    for (let slide = 0; slide < SLIDES; slide++) {
+      const box = document.createElement("div");
+      box.className = "box";
+      if (NESTED) {
+        const cell = document.createElement("div");
+        cell.className = "slide";
+        cell.appendChild(box);
+        scroller.appendChild(cell);
+      } else {
+        scroller.appendChild(box);
+      }
+    }
+
+    row.appendChild(scroller);
+    fragment.appendChild(row);
+  }
+
+  document.getElementById("list").appendChild(fragment);
+
+  const elements = document.getElementsByTagName("*").length;
+  record("built", { elements });
+  document.getElementById("bar").textContent =
+    NAME + " \u2014 " + TILES + " rows \u00d7 " + SLIDES + " slides, " + elements + " elements";
+
+  if (params.has("scroll-down")) {
+    let previous = -1;
+    let stalled = 0;
+    const step = () => {
+      const bottom = document.documentElement.scrollHeight - window.innerHeight;
+      if (window.scrollY >= bottom - 2) {
+        record("scrolled", { elements });
+        return;
+      }
+      if (window.scrollY === previous) {
+        stalled++;
+        if (stalled > 180) {
+          record("stalled", { elements, at: window.scrollY });
+          return;
+        }
+      } else {
+        stalled = 0;
+      }
+      previous = window.scrollY;
+      window.scrollBy(0, window.innerHeight);
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+<\/script>
+`;
+
 const demoPage = ({ name, rules }) => `<!doctype html>
 <html lang="en">
 <meta charset="utf-8">
@@ -106,44 +197,7 @@ const demoPage = ({ name, rules }) => `<!doctype html>
 <div id="bar"></div>
 <div id="list"></div>
 
-<script>
-  const params = new URLSearchParams(location.search);
-  const size = (key, fallback) => {
-    const value = Number(params.get(key));
-    return Number.isFinite(value) && value > 0 ? value : fallback;
-  };
-
-  const TILES = size("tiles", 1000);
-  const SLIDES = size("slides", 10);
-
-  const fragment = document.createDocumentFragment();
-
-  for (let tile = 0; tile < TILES; tile++) {
-    const row = document.createElement("div");
-    row.className = "tile";
-
-    const scroller = document.createElement("div");
-    scroller.className = "scroller";
-
-    for (let slide = 0; slide < SLIDES; slide++) {
-      const cell = document.createElement("div");
-      cell.className = "slide";
-      const box = document.createElement("div");
-      box.className = "box";
-      cell.appendChild(box);
-      scroller.appendChild(cell);
-    }
-
-    row.appendChild(scroller);
-    fragment.appendChild(row);
-  }
-
-  document.getElementById("list").appendChild(fragment);
-  document.getElementById("bar").textContent =
-    "${name} \\u2014 " + TILES + " rows \\u00d7 " + SLIDES + " slides, " +
-    document.getElementsByTagName("*").length + " elements";
-</script>
-`;
+${runtime(name, true)}`;
 
 
 /**
@@ -285,49 +339,7 @@ ${mode === "boxes" ? Array.from({ length: 10 }, (_, index) => `
 <div id="bar"></div>
 <div id="list"></div>
 
-<script>
-  const params = new URLSearchParams(location.search);
-  const size = (key, fallback) => {
-    const value = Number(params.get(key));
-    return Number.isFinite(value) && value > 0 ? value : fallback;
-  };
-
-  const TILES = size("tiles", 1000);
-  const SLIDES = size("slides", 10);
-  const NESTED = ${mode === "slides"};
-
-  const fragment = document.createDocumentFragment();
-
-  for (let tile = 0; tile < TILES; tile++) {
-    const row = document.createElement("div");
-    row.className = "tile";
-
-    const scroller = document.createElement("div");
-    scroller.className = "scroller";
-
-    for (let slide = 0; slide < SLIDES; slide++) {
-      const box = document.createElement("div");
-      box.className = "box";
-      if (NESTED) {
-        const cell = document.createElement("div");
-        cell.className = "slide";
-        cell.appendChild(box);
-        scroller.appendChild(cell);
-      } else {
-        scroller.appendChild(box);
-      }
-    }
-
-    row.appendChild(scroller);
-    fragment.appendChild(row);
-  }
-
-  document.getElementById("list").appendChild(fragment);
-  document.getElementById("bar").textContent =
-    "${name} \u2014 " + TILES + " rows \u00d7 " + SLIDES + " slides, " +
-    document.getElementsByTagName("*").length + " elements";
-</script>
-`;
+${runtime(name, mode === "slides")}`;
 
 const card = ({ file, name, about, css }) => `  <li>
     <div class="head">
@@ -633,11 +645,36 @@ ${DEMOS.map(card).join("\n")}
 </footer>
 `;
 
+
+/**
+ * Reads back what the last run recorded. Deliberately tiny: it has to load in a
+ * web view that may have just been killed.
+ */
+const reporter = `<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>report</title>
+<body style="font: 14px/1.5 ui-monospace, monospace; padding: 1rem">
+<pre id="result">no run recorded</pre>
+<script>
+  try {
+    const raw = localStorage.getItem("run");
+    if (raw) {
+      document.getElementById("result").textContent = raw;
+      document.title = "report " + JSON.parse(raw).phase;
+    }
+  } catch (error) {
+    document.getElementById("result").textContent = "unreadable: " + error;
+  }
+<\/script>
+`;
+
 for (const demo of DEMOS) {
   writeFileSync(new URL(demo.file, import.meta.url), demoPage(demo));
 }
 for (const scenario of TESTS) {
   writeFileSync(new URL(scenario.file, import.meta.url), testPage(scenario));
 }
+writeFileSync(new URL("report.html", import.meta.url), reporter);
 writeFileSync(new URL("index.html", import.meta.url), index);
 console.log(`generated ${DEMOS.length} demos, ${TESTS.length} tests + index`);
