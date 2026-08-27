@@ -66,3 +66,59 @@ export const VARIANTS = [
   window.addEventListener("scrollend", flush, { passive: true });`,
   },
 ];
+
+/* Appended experiments — deleted once measured. */
+
+const BASE_SCROLLER = `    display: flex;
+    width: round(down, 100%, 1px);
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;`;
+
+VARIANTS.push(
+  {
+    // Declares a scroll container whose content fits exactly, so it never gains
+    // scrollable overflow. Same DOM and same declaration as `full`.
+    file: "test_auto-no-overflow.html",
+    name: "auto-no-overflow",
+    mode: "slides",
+    scroller: `${BASE_SCROLLER}
+    gap: 0;`,
+    slide: `    flex: 0 0 10%;
+    display: flex;
+    align-items: center;
+    justify-content: center;`,
+    css: `  .box { width: 100%; height: 200px }`,
+  },
+  {
+    // One oversized slide holding a 4px box: scrollable, with almost nothing in
+    // it. Run with ?slides=1.
+    file: "test_empty-scrollers.html",
+    name: "empty-scrollers",
+    mode: "slides",
+    scroller: `${BASE_SCROLLER}
+    gap: 0;`,
+    slide: `    flex: 0 0 200%;`,
+    css: `  .box { width: 4px; height: 4px }`,
+  },
+  {
+    // The same construction turned ninety degrees, to see whether the inline
+    // axis is what costs.
+    file: "test_vertical.html",
+    name: "vertical",
+    mode: "slides",
+    scroller: `    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: round(down, 100%, 1px);
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    overflow-y: auto;
+    overscroll-behavior-block: contain;`,
+    slide: `    flex: 0 0 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;`,
+  },
+);
