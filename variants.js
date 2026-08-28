@@ -122,3 +122,42 @@ VARIANTS.push(
     justify-content: center;`,
   },
 );
+
+VARIANTS.push(
+  {
+    // `scroll` rather than `auto`: the scrollbar is always live, so this asks
+    // whether the cost follows the keyword or the scrollable overflow.
+    file: "test_overflow-scroll.html",
+    name: "overflow-scroll",
+    mode: "slides",
+    scroller: `    display: flex;
+    gap: 16px;
+    width: round(down, 100%, 1px);
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    overflow-x: scroll;
+    overscroll-behavior-inline: contain;`,
+    slide: `    flex: 0 0 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;`,
+  },
+  {
+    // Scrollable on both axes at once.
+    file: "test_overflow-both.html",
+    name: "overflow-both",
+    mode: "slides",
+    scroller: `    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    width: round(down, 100%, 1px);
+    aspect-ratio: 1 / 1;
+    overflow: auto;
+    overscroll-behavior: contain;`,
+    slide: `    flex: 0 0 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;`,
+  },
+);
