@@ -107,6 +107,7 @@
     padding: 0.875rem 1rem;
     border-top: 1px solid #eaecf0;
     display: grid;
+    align-content: start;
     gap: 0.875rem;
   }
 
@@ -161,6 +162,9 @@
   .run + .run { border-top: 1px solid rgb(255 255 255 / 0.15) }
 
   /* The one that kills the tab. */
+  .run.is-secondary { background: #f2f4f7; color: #344054 }
+  .run.is-secondary:hover { background: #eaecf0 }
+
   .run.is-danger { background: #b42318 }
   .run.is-danger:hover { background: #912018 }
 
@@ -391,6 +395,31 @@ containers, no timelines</p>
 <ul class="demos">
   <li>
     <div class="head">
+      <h2>inview</h2>
+      <p class="about">The same page, without any scroll timeline</p>
+    </div>
+    <a class="source" href="https://github.com/jantimon/repro-scroller-memory/blob/main/inview.html" target="_blank" rel="noopener"
+       aria-label="Source code for inview on GitHub"><span>Source code</span>
+      <svg class="gh" aria-hidden="true"><use href="#github"></use></svg></a>
+    <pre class="css">overflow-x: auto;
+/* only while near the viewport */</pre>
+    <div class="stats">
+      <div class="stat is-ok">
+        <div class="where">
+          <span class="os">iOS 26, iOS 27 Beta</span>
+          <span class="devices">iPhone 14, 15, 15 Pro Max, 17 Pro</span>
+        </div>
+        <span class="verdict">✅ 59 fps</span>
+        <span class="note">500 and 1000 rows</span>
+      </div>
+    </div>
+    <div class="runs">
+      <a class="run is-secondary" href="inview.html" target="_blank" rel="noopener">Open inview</a>
+      <a class="run" href="inview.html?scroll-down=1" target="_blank" rel="noopener">Run inview (auto scroll)</a>
+    </div>
+  </li>
+  <li>
+    <div class="head">
       <h2>inview-timeline</h2>
       <p class="about">As inview, with a scroll timeline reading each row and one timeline name per row</p>
     </div>
@@ -424,10 +453,9 @@ scroll-timeline: var(--row) inline;</pre>
         <span class="verdict">💥 low, 11 fps</span>
         <span class="note">1000 rows</span>
       </div>
-      <p class="footnote">The same page without the timeline holds 59 fps at 1000 rows</p>
     </div>
     <div class="runs">
-      <a class="run" href="inview-timeline.html" target="_blank" rel="noopener">Run inview-timeline</a>
+      <a class="run is-secondary" href="inview-timeline.html" target="_blank" rel="noopener">Open inview-timeline</a>
       <a class="run is-danger" href="inview-timeline.html?scroll-down=1" target="_blank" rel="noopener">Run inview-timeline (auto scroll)</a>
     </div>
   </li>

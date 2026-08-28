@@ -80,10 +80,24 @@ content-visibility: auto;`,
   for (const tile of document.querySelectorAll(".tile")) watcher.observe(tile);`,
   },
   {
+    file: "inview.html",
+    name: "inview",
+    group: "timeline",
+    about: "The same page, without any scroll timeline",
+    alsoRun: "scroll-down=1",
+    css: `overflow-x: auto;\n/* only while near the viewport */`,
+    rules: null,
+    stats: [
+      { verdict: "ok", label: "59 fps", note: "500 and 1000 rows",
+        os: "iOS 26, iOS 27 Beta", devices: "iPhone 14, 15, 15 Pro Max, 17 Pro" },
+    ],
+  },
+  {
     file: "inview-timeline.html",
     name: "inview-timeline",
     group: "timeline",
     alsoRun: "scroll-down=1",
+    alsoRunDanger: true,
     about:
       "As inview, with a scroll timeline reading each row and one timeline name per row",
     stats: [
@@ -94,7 +108,6 @@ content-visibility: auto;`,
       { verdict: "bad", label: "low, 11 fps", note: "1000 rows",
         os: "iOS 27 Beta", devices: "iPhone 15" },
     ],
-    footnote: "The same page without the timeline holds 59 fps at 1000 rows",
     css: `overflow-x: auto;\nscroll-timeline: var(--row) inline;`,
     tile: `    timeline-scope: var(--row);`,
     rules: null,
@@ -411,7 +424,7 @@ const statLine = ({ verdict, label, note, os, devices }) => `      <div class="s
         <span class="note">${note}</span>
       </div>`;
 
-const card = ({ file, name, about, css, danger, stats, footnote, alsoRun }) => `  <li>
+const card = ({ file, name, about, css, danger, stats, footnote, alsoRun, alsoRunDanger }) => `  <li>
     <div class="head">
       <h2>${name}</h2>
       <p class="about">${about}</p>
@@ -424,9 +437,9 @@ const card = ({ file, name, about, css, danger, stats, footnote, alsoRun }) => `
 ${(stats ?? []).map(statLine).join("\n")}${footnote ? `\n      <p class="footnote">${footnote}</p>` : ""}
     </div>
     <div class="runs">
-      <a class="run${danger ? " is-danger" : ""}" href="${file}" target="_blank" rel="noopener">Run ${name}</a>${
+      <a class="run${alsoRun ? " is-secondary" : danger ? " is-danger" : ""}" href="${file}" target="_blank" rel="noopener">${alsoRun ? "Open" : "Run"} ${name}</a>${
         alsoRun
-          ? `\n      <a class="run is-danger" href="${file}?${alsoRun}" target="_blank" rel="noopener">Run ${name} (auto scroll)</a>`
+          ? `\n      <a class="run${alsoRunDanger ? " is-danger" : ""}" href="${file}?${alsoRun}" target="_blank" rel="noopener">Run ${name} (auto scroll)</a>`
           : ""
       }
     </div>
@@ -541,6 +554,7 @@ const index = `<!doctype html>
     padding: 0.875rem 1rem;
     border-top: 1px solid #eaecf0;
     display: grid;
+    align-content: start;
     gap: 0.875rem;
   }
 
@@ -595,6 +609,9 @@ const index = `<!doctype html>
   .run + .run { border-top: 1px solid rgb(255 255 255 / 0.15) }
 
   /* The one that kills the tab. */
+  .run.is-secondary { background: #f2f4f7; color: #344054 }
+  .run.is-secondary:hover { background: #eaecf0 }
+
   .run.is-danger { background: #b42318 }
   .run.is-danger:hover { background: #912018 }
 
