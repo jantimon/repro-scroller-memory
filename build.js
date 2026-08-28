@@ -14,15 +14,23 @@ const DEMOS = [
     file: "noscroller.html",
     name: "noscroller",
     about:
-      "Baseline. The same boxes in the same flex layout, with nothing scrollable. Renders and stays flat.",
+      "Baseline. The same boxes in the same flex layout, with nothing scrollable.",
     css: `overflow: hidden;`,
     rules: null,
+    stats: [
+      { verdict: "ok", value: "5000+", unit: "rows", os: "iOS 26 · 27 Beta",
+        devices: "17 Pro · 15" },
+    ],
   },
   {
     file: "content-visibility.html",
     name: "content-visibility",
     about:
-      "The same scroll containers, with the row opted out of rendering while offscreen. Survives where full does not.",
+      "The same scroll containers, with the row opted out of rendering while offscreen.",
+    stats: [
+      { verdict: "ok", value: "5000+", unit: "rows", os: "iOS 26 · 27 Beta",
+        devices: "17 Pro · 15" },
+    ],
     css: `overflow-x: auto;
 
 /* on the row */
@@ -41,7 +49,11 @@ content-visibility: auto;`,
     file: "inview.html",
     name: "inview",
     about:
-      "An IntersectionObserver makes a row a scroll container only while it is near the viewport, and takes it back on the way out. Survives, and swipes normally.",
+      "An IntersectionObserver makes a row a scroll container only while it is near the viewport, and takes it back on the way out.",
+    stats: [
+      { verdict: "ok", value: "5000+", unit: "rows", os: "iOS 26",
+        devices: "17 Pro" },
+    ],
     css: `overflow-x: auto;\n/* only while near the viewport */`,
     rules: null,
     style: `  .scroller.is-live {
@@ -71,7 +83,16 @@ content-visibility: auto;`,
     file: "inview-timeline.html",
     name: "inview-timeline",
     about:
-      "As inview, with a scroll timeline reading each row and one timeline name per row. Survives, but scrolls at 24 fps against 59.",
+      "As inview, with a scroll timeline reading each row and one timeline name per row.",
+    stats: [
+      { verdict: "ok", value: "59", unit: "fps", os: "500 rows",
+        devices: "14 · 15 · 15 Pro Max · 17 Pro" },
+      { verdict: "bad", value: "17–27", unit: "fps", os: "1000 rows, iOS 26",
+        devices: "14 · 15 · 15 Pro Max · 17 Pro" },
+      { verdict: "bad", value: "11", unit: "fps", os: "1000 rows, iOS 27 Beta",
+        devices: "15" },
+    ],
+    footnote: "The same page without the timeline holds 59 fps at 1000 rows.",
     css: `overflow-x: auto;\nscroll-timeline: var(--row) inline;`,
     tile: `    timeline-scope: var(--row);`,
     rules: null,
@@ -122,7 +143,14 @@ content-visibility: auto;`,
     file: "full.html",
     name: "full",
     about:
-      "Every row is its own scroll container. This alone is enough to kill the page — snapping is not required.",
+      "Every row is its own scroll container. This alone is enough to kill the page. Snapping is not required.",
+    stats: [
+      { verdict: "ok", value: "5000+", unit: "rows", os: "iOS 15 · 16 · 17",
+        devices: "SE 2022 · 13 · 15" },
+      { verdict: "bad", value: "200", unit: "rows", os: "iOS 18 · 26 · 27 Beta",
+        devices: "12 Pro · 13 · 14 · 15 · 15 Pro Max · 17 Pro" },
+    ],
+    footnote: "The iOS Simulator renders every row.",
     css: `overflow-x: auto;`,
     danger: true,
     rules: `    overflow-x: auto;
@@ -367,7 +395,18 @@ ${css ? `\n${css}\n` : ""}${mode === "boxes" ? Array.from({ length: 10 }, (_, in
 
 ${runtime(name, mode === "slides")}${extra ? `\n<script>\n${extra}\n<\/script>\n` : ""}`;
 
-const card = ({ file, name, about, css, danger }) => `  <li>
+/**
+ * Measured outcome per demo. The number carries the weight, the device list
+ * shows the spread, and the repeated figure across cards is the finding.
+ */
+const statLine = ({ verdict, value, unit, os, devices }) => `      <div class="stat is-${verdict}">
+        <span class="mark">${verdict === "ok" ? "\u2705" : "\uD83D\uDCA5"}</span>
+        <span class="figure"><b>${value}</b> ${unit}</span>
+        <span class="where">${os}</span>
+        <span class="devices">${devices}</span>
+      </div>`;
+
+const card = ({ file, name, about, css, danger, stats, footnote }) => `  <li>
     <div class="head">
       <h2>${name}</h2>
       <p class="about">${about}</p>
@@ -376,6 +415,9 @@ const card = ({ file, name, about, css, danger }) => `  <li>
        aria-label="Source code for ${name} on GitHub"><span>Source code</span>
       <svg class="gh" aria-hidden="true"><use href="#github"></use></svg></a>
     <pre class="css">${css}</pre>
+    <div class="stats">
+${(stats ?? []).map(statLine).join("\n")}${footnote ? `\n      <p class="footnote">${footnote}</p>` : ""}
+    </div>
     <a class="run${danger ? " is-danger" : ""}" href="${file}" target="_blank" rel="noopener">Run ${name}</a>
   </li>`;
 
@@ -394,8 +436,16 @@ const index = `<!doctype html>
     color: #222;
   }
 
-  h1 { font-size: 1.5rem; margin-bottom: 0.25rem }
+  h1 { font-size: 1.5rem; margin: 0 }
   header p { margin-top: 0; color: #666; max-width: 44rem }
+
+  .title { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap;
+       margin-bottom: 0.25rem }
+  .repo { display: inline-flex; align-items: center; gap: 0.35rem; color: #475467;
+       text-decoration: none; font-size: 0.875rem; font-weight: 600 }
+  .repo:hover { color: #101828 }
+  .repo .gh { align-self: center }
+
   code { font-size: 0.9em; background: #f2f4f7; padding: 0.1em 0.35em; border-radius: 4px }
 
   /* min() so a narrow phone can't push a 18rem column past the viewport */
@@ -416,7 +466,7 @@ const index = `<!doctype html>
     position: relative;
     display: grid;
     grid-template-rows: subgrid;
-    grid-row: span 3;
+    grid-row: span 4;
     row-gap: 0;
     border-radius: 12px;
     overflow: hidden;
@@ -471,6 +521,53 @@ const index = `<!doctype html>
     white-space: pre;
     overflow-x: auto;
   }
+
+  .stats {
+    padding: 0.75rem 1rem 0.875rem;
+    border-top: 1px solid #eaecf0;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  /* Verdict, number, condition, devices — the number is the only large thing,
+     so a column of cards reads as a column of figures. */
+  .stat {
+    display: grid;
+    grid-template-columns: 1.25rem auto 1fr;
+    align-items: baseline;
+    column-gap: 0.5rem;
+  }
+
+  .mark { font-size: 0.875rem; line-height: 1 }
+
+  .figure { font-size: 0.875rem; color: #475467; white-space: nowrap }
+  .figure b {
+    font-size: 1.375rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: #101828;
+  }
+  .is-bad .figure b { color: #b42318 }
+  .is-ok .figure b { color: #067647 }
+
+  .where {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #475467;
+    background: #f2f4f7;
+    border-radius: 999px;
+    padding: 0.15em 0.55em;
+    justify-self: start;
+  }
+
+  /* Second line under the figure: which phones, quietly. */
+  .devices {
+    grid-column: 2 / -1;
+    font-size: 0.75rem;
+    color: #98a2b3;
+  }
+
+  .footnote { margin: 0; font-size: 0.75rem; color: #667085 }
 
   .run {
     display: block;
@@ -543,6 +640,16 @@ const index = `<!doctype html>
        font: 0.8125rem/1.6 ui-monospace, monospace; background: none;
        border: 0; border-radius: 0; height: 100%; box-sizing: border-box }
 
+  .method { margin-top: 1.5rem; border-radius: 12px; background: #fff; padding: 0 1rem;
+       box-shadow: 0 0 0 1px rgb(16 24 40 / 0.06),
+                   0 1px 2px rgb(16 24 40 / 0.06),
+                   0 12px 28px -10px rgb(16 24 40 / 0.22) }
+  .method summary { padding: 0.875rem 0; font-weight: 600; cursor: pointer }
+  .method p { margin: 0 0 0.875rem; color: #475467; font-size: 0.875rem; max-width: 44rem }
+  .log { margin: 0 0 0.875rem; padding: 0.75rem; overflow-x: auto; background: #fcfcfd;
+       border: 1px solid #eaecf0; border-radius: 8px;
+       font: 0.75rem/1.5 ui-monospace, monospace; color: #475467 }
+
   footer { margin-top: 2.5rem; color: #666; font-size: 0.9375rem; max-width: 44rem }
 </style>
 
@@ -553,14 +660,17 @@ const index = `<!doctype html>
 </svg>
 
 <header>
-  <h1>Scroller memory repro</h1>
-  <p>Three pages rendering 1000 flex rows of 10 full-width slides, each holding a
-  200×200 box. No images, no libraries, ~21,000 elements. They differ only in whether
-  the row is a scroll container, and whether it is opted out of rendering offscreen.</p>
-  <p>On an iPhone (iOS 26), <code>full</code> reaches 8.2 GB in 17 seconds and the
-  WebContent process is killed at its 1536 MB limit. <code>noscroller</code> renders the
-  same boxes and stays flat, and <code>content-visibility</code> keeps the scroll
-  containers but survives. The iOS Simulator shows no difference between any of them.</p>
+  <div class="title">
+    <h1>Scroller memory repro</h1>
+    <a class="repo" href="${REPO}"
+       target="_blank" rel="noopener">
+      <svg class="gh" aria-hidden="true"><use href="#github"></use></svg>
+      <span>jantimon/repro-scroller-memory</span></a>
+  </div>
+  <p>A long list where every row is its own scroller kills the tab on iOS 18 and
+  later. Around 200 rows is enough. The same phone on iOS 17 renders 5000.</p>
+  <p>The pages below are the same 1000 flex rows of 10 full-width slides, no images
+  and no libraries. They differ only in how the row is made scrollable.</p>
 </header>
 
   <div class="size">
@@ -585,28 +695,50 @@ ${DEMOS.map(card).join("\n")}
 
 <section class="results">
   <div class="head">
-    <h2>Where <code>full</code> stops rendering</h2>
-    <p class="about">Highest row count that still built the page, walking 50 → 100 → 200
-    → 500 → 1000 and stopping at the first count that failed.</p>
+    <h2>What changes the count, and what does not</h2>
+    <p class="about">Every variant below is the <code>full</code> page with one
+    thing altered, measured on an iPhone 17 Pro running iOS 26.</p>
   </div>
   <table>
     <thead>
-      <tr><th>Device</th><th>iOS</th><th>RAM</th><th>Highest rendered</th></tr>
+      <tr><th>Changed</th><th>Rows before the tab dies</th></tr>
     </thead>
     <tbody>
-      <tr><td>iPhone 17 Pro</td><td>26</td><td>12 GB</td><td>100</td></tr>
-      <tr><td>iPhone 15 Pro Max</td><td>26</td><td>8 GB</td><td>100</td></tr>
-      <tr><td>iPhone 14</td><td>26</td><td>6 GB</td><td>200</td></tr>
-      <tr><td>iPhone 12 Pro</td><td>18</td><td>6 GB</td><td>200</td></tr>
-      <tr><td>iPhone 13</td><td>18</td><td>4 GB</td><td>100</td></tr>
-      <tr><td>iPhone SE 2022</td><td>15</td><td>4 GB</td><td>1000</td></tr>
+      <tr><td>nothing — <code>overflow-x: auto</code></td><td>200</td></tr>
+      <tr><td><code>overflow-y</code> instead of <code>overflow-x</code></td><td>200</td></tr>
+      <tr><td><code>overflow: auto</code>, both axes at once</td><td>200</td></tr>
+      <tr><td><code>overflow-x: scroll</code> instead of <code>auto</code></td><td>200</td></tr>
+      <tr><td><code>display: grid</code> instead of flex</td><td>200</td></tr>
+      <tr><td><code>display: block</code> with inline-block slides</td><td>200</td></tr>
+      <tr><td>100 slides per row instead of 10</td><td>200</td></tr>
+      <tr><td>2 slides per row — one viewport of overflow</td><td>500+</td></tr>
+      <tr><td>slides narrow enough that nothing overflows</td><td>5000+</td></tr>
     </tbody>
   </table>
-  <p class="caveat">Measured on BrowserStack real devices. More RAM did not help, and the
-  oldest and weakest device was the only one to render every row — so the variable looks
-  like the iOS version rather than the hardware. Failures were reported as socket
-  timeouts, which cannot always be told apart from a killed web view, so read these as a
-  floor rather than an exact limit.</p>
+  <p class="caveat">The count follows the number of boxes that have gained
+  scrollable overflow. Not the axis, not the display type, not the element count:
+  40,410 elements in 200 scrollers render, while 3,010 elements in 250 scrollers
+  do not. A box that declares <code>overflow: auto</code> and whose content fits
+  costs nothing.</p>
+</section>
+
+<section class="results">
+  <div class="head">
+    <h2>Two more ways to spend the count</h2>
+  </div>
+  <table>
+    <thead>
+      <tr><th></th><th>Rows before the tab dies</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>a page opened in a fresh tab</td><td>200</td></tr>
+      <tr><td>a page opened after another one in the same tab</td><td>125</td></tr>
+      <tr><td>1000 cheap scrollers, built but never scrolled</td><td>renders</td></tr>
+      <tr><td>the same page, scrolled to the bottom</td><td>200</td></tr>
+    </tbody>
+  </table>
+  <p class="caveat">Memory is not returned when a page is left, and not returned
+  when a row leaves the viewport.</p>
 </section>
 
 <section class="markup">
@@ -678,6 +810,25 @@ ${DEMOS.map(card).join("\n")}
   tiles.addEventListener("change", apply);
   apply();
 </script>
+
+<details class="method">
+  <summary>How this was measured</summary>
+  <p>Real devices on BrowserStack. Each row count is loaded in its own fresh
+  browser session and repeated three times; a count is only reported once every
+  run agrees. A kill shows up as the automation socket going quiet, which is also
+  what the device log records:</p>
+  <pre class="log">memorystatus: com.apple.WebKit.WebContent exceeded mem limit: ActiveSoft 1536 MB (non-fatal)
+memorystatus: killing_highwater_process [com.apple.WebKit.WebContent] (highwater 100 17s) 8579568KB</pre>
+  <p>8.58 GB against a 1536 MB limit, in 17 seconds. Against a 200-row ceiling
+  that is roughly 7 MB for each scroll container.</p>
+  <p>Two things skewed earlier numbers and were corrected. Walking row counts
+  inside one browser session measures the accumulated total rather than the page,
+  because memory is not released between navigations. Running five sessions at
+  once against one device model produces sporadic kills well below the real
+  ceiling, so those runs were repeated one at a time.</p>
+  <p>Devices: iPhone SE 2022, 12 Pro, 13, 14, 15, 15 Pro Max, 17 Pro. OS
+  versions: iOS 15, 16, 17, 18, 26, 27 Beta.</p>
+</details>
 
 <footer>
   <p>Found while tracing WKWebView content-process kills on a long list where every row
