@@ -161,3 +161,50 @@ VARIANTS.push(
     justify-content: center;`,
   },
 );
+
+/* Same scroller, same overflow, different formatting context. */
+
+const SCROLL_RULES = `    width: round(down, 100%, 1px);
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;`;
+
+VARIANTS.push(
+  {
+    file: "test_display-block.html",
+    name: "display-block",
+    mode: "slides",
+    scroller: `    display: block;
+    white-space: nowrap;
+${SCROLL_RULES}`,
+    slide: `    display: inline-block;
+    width: 100%;
+    height: 100%;
+    text-align: center;`,
+  },
+  {
+    file: "test_display-grid.html",
+    name: "display-grid",
+    mode: "slides",
+    scroller: `    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+    gap: 16px;
+${SCROLL_RULES}`,
+    slide: `    display: flex;
+    align-items: center;
+    justify-content: center;`,
+  },
+  {
+    file: "test_display-inline-block.html",
+    name: "display-inline-block",
+    mode: "slides",
+    // No nowrap: the slides are floated instead, so the line box plays no part.
+    scroller: `    display: block;
+${SCROLL_RULES}`,
+    slide: `    float: left;
+    width: 100%;
+    height: 100%;`,
+  },
+);
