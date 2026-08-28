@@ -184,7 +184,7 @@
     }
   }
 
-  .results { margin-top: 1.5rem; border-radius: 12px; overflow: hidden; background: #fff;
+  .results { margin-top: 2.5rem; border-radius: 12px; overflow: hidden; background: #fff;
        box-shadow: 0 0 0 1px rgb(16 24 40 / 0.06),
                    0 1px 2px rgb(16 24 40 / 0.06),
                    0 12px 28px -10px rgb(16 24 40 / 0.22) }
@@ -195,6 +195,9 @@
   .results th { background: #fcfcfd; color: #667085; font-size: 0.75rem; font-weight: 600;
        letter-spacing: 0.04em; text-transform: uppercase; border-top: 0 }
   .results td:last-child { font-variant-numeric: tabular-nums }
+  .verdicts td:first-child { width: 55% }
+  .verdicts .bad { color: #b42318; font-weight: 600 }
+  .verdicts .ok { color: #067647; font-weight: 600 }
   .caveat { margin: 0; padding: 0.875rem 1rem; border-top: 1px solid #eaecf0;
        background: #fcfcfd; color: #667085; font-size: 0.8125rem; max-width: none }
 
@@ -218,13 +221,14 @@
        font: 0.8125rem/1.6 ui-monospace, monospace; background: none;
        border: 0; border-radius: 0; height: 100%; box-sizing: border-box }
 
-  .method { margin-top: 1.5rem; border-radius: 12px; background: #fff; padding: 0 1rem;
+  .method { margin-top: 1.5rem; border-radius: 12px; overflow: hidden; background: #fff;
        box-shadow: 0 0 0 1px rgb(16 24 40 / 0.06),
                    0 1px 2px rgb(16 24 40 / 0.06),
                    0 12px 28px -10px rgb(16 24 40 / 0.22) }
-  .method summary { padding: 0.875rem 0; font-weight: 600; cursor: pointer }
-  .method p { margin: 0 0 0.875rem; color: #475467; font-size: 0.875rem; max-width: 44rem }
-  .log { margin: 0 0 0.875rem; padding: 0.75rem; overflow-x: auto; background: #fcfcfd;
+  .method .head { padding: 0.875rem 1rem }
+  .method .body { padding: 0 1rem 1rem; border-top: 1px solid #eaecf0 }
+  .method p { margin: 1rem 0 0; color: #475467; font-size: 0.875rem; max-width: 44rem }
+  .log { margin: 1rem 0 0; padding: 0.75rem 1rem; overflow-x: auto; background: #fcfcfd;
        border: 1px solid #eaecf0; border-radius: 8px;
        font: 0.75rem/1.5 ui-monospace, monospace; color: #475467 }
 
@@ -246,9 +250,9 @@
       <span>jantimon/repro-scroller-memory</span></a>
   </div>
   <p>A long list where every row is its own scroller kills the tab on iOS 18 and
-  later. Around 200 rows is enough. The same phone on iOS 17 renders 5000.</p>
+  later. Around 200 rows is enough. The same phone on iOS 17 renders 5000</p>
   <p>The pages below are the same 1000 flex rows of 10 full-width slides, no images
-  and no libraries. They differ only in how the row is made scrollable.</p>
+  and no libraries. They differ only in how the row is made scrollable</p>
 </header>
 
   <div class="size">
@@ -269,13 +273,13 @@
 
 <h2 class="group">Scroll containers and memory</h2>
 <p class="group-about">Five pages, the same 1000 rows of ten slides. They differ
-only in how the row is made scrollable.</p>
+only in how the row is made scrollable</p>
 
 <ul class="demos">
   <li>
     <div class="head">
       <h2>noscroller</h2>
-      <p class="about">Baseline. The same boxes in the same flex layout, with nothing scrollable.</p>
+      <p class="about">Baseline (not scroll containers)</p>
     </div>
     <a class="source" href="https://github.com/jantimon/repro-scroller-memory/blob/main/noscroller.html" target="_blank" rel="noopener"
        aria-label="Source code for noscroller on GitHub"><span>Source code</span>
@@ -298,7 +302,7 @@ only in how the row is made scrollable.</p>
   <li>
     <div class="head">
       <h2>content-visibility</h2>
-      <p class="about">The same scroll containers, with the row opted out of rendering while offscreen.</p>
+      <p class="about">Baseline with overflow-x: auto and css content-visibility</p>
     </div>
     <a class="source" href="https://github.com/jantimon/repro-scroller-memory/blob/main/content-visibility.html" target="_blank" rel="noopener"
        aria-label="Source code for content-visibility on GitHub"><span>Source code</span>
@@ -324,7 +328,7 @@ content-visibility: auto;</pre>
   <li>
     <div class="head">
       <h2>inview</h2>
-      <p class="about">An IntersectionObserver makes a row a scroll container only while it is near the viewport, and takes it back on the way out.</p>
+      <p class="about">An IntersectionObserver turns a row a scroll container with overflow-x: auto only as long it is in view</p>
     </div>
     <a class="source" href="https://github.com/jantimon/repro-scroller-memory/blob/main/inview.html" target="_blank" rel="noopener"
        aria-label="Source code for inview on GitHub"><span>Source code</span>
@@ -348,7 +352,7 @@ content-visibility: auto;</pre>
   <li>
     <div class="head">
       <h2>full</h2>
-      <p class="about">Every row is its own scroll container. This alone is enough to kill the page. Snapping is not required.</p>
+      <p class="about">Same as baseline but overflow-x: auto. This example crashes the page because out of memory</p>
     </div>
     <a class="source" href="https://github.com/jantimon/repro-scroller-memory/blob/main/full.html" target="_blank" rel="noopener"
        aria-label="Source code for full on GitHub"><span>Source code</span>
@@ -371,7 +375,7 @@ content-visibility: auto;</pre>
         <span class="verdict">💥 crashes</span>
         <span class="note">at 200 rows</span>
       </div>
-      <p class="footnote">The iOS Simulator renders every row.</p>
+      <p class="footnote">⚠️ Crashes only happen on real iPhones, not in the Simulator</p>
     </div>
     <div class="runs">
       <a class="run is-danger" href="full.html" target="_blank" rel="noopener">Run full</a>
@@ -382,13 +386,13 @@ content-visibility: auto;</pre>
 <h2 class="group">Scroll timelines and frame rate</h2>
 <p class="group-about">A separate problem, on a page that survives. The
 <code>inview</code> page above is its control: same rows, same scroll
-containers, no timelines.</p>
+containers, no timelines</p>
 
 <ul class="demos">
   <li>
     <div class="head">
       <h2>inview-timeline</h2>
-      <p class="about">As inview, with a scroll timeline reading each row and one timeline name per row.</p>
+      <p class="about">As inview, with a scroll timeline reading each row and one timeline name per row</p>
     </div>
     <a class="source" href="https://github.com/jantimon/repro-scroller-memory/blob/main/inview-timeline.html" target="_blank" rel="noopener"
        aria-label="Source code for inview-timeline on GitHub"><span>Source code</span>
@@ -401,8 +405,8 @@ scroll-timeline: var(--row) inline;</pre>
           <span class="os">iOS 26</span>
           <span class="devices">iPhone 14, 15, 15 Pro Max, 17 Pro</span>
         </div>
-        <span class="verdict">✅ 59 fps</span>
-        <span class="note">500 rows</span>
+        <span class="verdict">✅ 50 to 59 fps</span>
+        <span class="note">500 rows, shorter rows land at the lower end</span>
       </div>
       <div class="stat is-bad">
         <div class="where">
@@ -420,7 +424,7 @@ scroll-timeline: var(--row) inline;</pre>
         <span class="verdict">💥 low, 11 fps</span>
         <span class="note">1000 rows</span>
       </div>
-      <p class="footnote">The same page without the timeline holds 59 fps at 1000 rows.</p>
+      <p class="footnote">The same page without the timeline holds 59 fps at 1000 rows</p>
     </div>
     <div class="runs">
       <a class="run" href="inview-timeline.html" target="_blank" rel="noopener">Run inview-timeline</a>
@@ -431,57 +435,43 @@ scroll-timeline: var(--row) inline;</pre>
 
 <section class="results">
   <div class="head">
-    <h2>What changes the count, and what does not</h2>
-    <p class="about">Every variant below is the <code>full</code> page with one
-    thing altered, measured on an iPhone 17 Pro running iOS 26.</p>
+    <h2>Experiments ran</h2>
+    <p class="about">In addition to the example cases above the following cases were also tested:</p>
   </div>
-  <table>
+  <table class="verdicts">
     <thead>
-      <tr><th>Changed</th><th>Rows before the tab dies</th></tr>
+      <tr><th>CSS on the row</th><th>What happens</th></tr>
     </thead>
     <tbody>
-      <tr><td>nothing — <code>overflow-x: auto</code></td><td>200</td></tr>
-      <tr><td><code>overflow-y</code> instead of <code>overflow-x</code></td><td>200</td></tr>
-      <tr><td><code>overflow: auto</code>, both axes at once</td><td>200</td></tr>
-      <tr><td><code>overflow-x: scroll</code> instead of <code>auto</code></td><td>200</td></tr>
-      <tr><td><code>display: grid</code> instead of flex</td><td>200</td></tr>
-      <tr><td><code>display: block</code> with inline-block slides</td><td>200</td></tr>
-      <tr><td>100 slides per row instead of 10</td><td>200</td></tr>
-      <tr><td>2 slides per row — one viewport of overflow</td><td>500+</td></tr>
-      <tr><td>slides narrow enough that nothing overflows</td><td>5000+</td></tr>
+      <tr><td><code>overflow-x: auto</code></td>
+          <td class="bad">☠️ tab crashes at 250 rows</td></tr>
+      <tr><td><code>overflow-y: auto</code></td>
+          <td class="bad">☠️ tab crashes at 250 rows</td></tr>
+      <tr><td><code>overflow: auto</code></td>
+          <td class="bad">☠️ tab crashes at 250 rows</td></tr>
+      <tr><td><code>overflow-x: scroll</code></td>
+          <td class="bad">☠️ tab crashes at 250 rows</td></tr>
+      <tr><td><code>display: grid</code> + <code>overflow-x: auto</code></td>
+          <td class="bad">☠️ tab crashes at 250 rows</td></tr>
+      <tr><td><code>display: block</code> + <code>overflow-x: auto</code></td>
+          <td class="bad">☠️ tab crashes at 250 rows</td></tr>
+      <tr><td><code>overflow-x: auto</code>, 100 slides per row</td>
+          <td class="bad">☠️ tab crashes at 250 rows</td></tr>
+      <tr><td><code>overflow-x: auto</code>, 2 slides per row</td>
+          <td class="ok">✅ 5000 rows, no crash</td></tr>
+      <tr><td><code>overflow-x: auto</code>, slides narrow enough to fit</td>
+          <td class="ok">✅ 5000 rows, no crash</td></tr>
+      <tr><td><code>overflow: hidden</code></td>
+          <td class="ok">✅ 5000 rows, no crash</td></tr>
     </tbody>
   </table>
-  <p class="caveat">The count follows the number of boxes that have gained
-  scrollable overflow. Not the axis, not the display type, not the element count:
-  40,410 elements in 200 scrollers render, while 3,010 elements in 250 scrollers
-  do not. A box that declares <code>overflow: auto</code> and whose content fits
-  costs nothing.</p>
-</section>
-
-<section class="results">
-  <div class="head">
-    <h2>Two more ways to spend the count</h2>
-  </div>
-  <table>
-    <thead>
-      <tr><th></th><th>Rows before the tab dies</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>a page opened in a fresh tab</td><td>200</td></tr>
-      <tr><td>a page opened after another one in the same tab</td><td>125</td></tr>
-      <tr><td>1000 cheap scrollers, built but never scrolled</td><td>renders</td></tr>
-      <tr><td>the same page, scrolled to the bottom</td><td>200</td></tr>
-    </tbody>
-  </table>
-  <p class="caveat">Memory is not returned when a page is left, and not returned
-  when a row leaves the viewport.</p>
 </section>
 
 <section class="markup">
   <div class="head">
     <h2>One row</h2>
     <p class="about">What every row on these pages is built from. Only the two marked
-    declarations differ between the demos.</p>
+    declarations differ between the demos</p>
   </div>
   <div class="panes">
     <div class="pane">
@@ -549,27 +539,22 @@ scroll-timeline: var(--row) inline;</pre>
   apply();
 </script>
 
-<details class="method">
-  <summary>How this was measured</summary>
-  <p>Real devices on BrowserStack. Each row count is loaded in its own fresh
-  browser session and repeated three times; a count is only reported once every
-  run agrees. A kill shows up as the automation socket going quiet, which is also
-  what the device log records:</p>
+<section class="method">
+  <div class="head">
+    <h2>Measured on BrowserStack</h2>
+  </div>
+  <div class="body">
+  <p>The experiments ran on a real BrowserStack test device. Each experiment ran
+  3 times to verify the results:</p>
   <pre class="log">memorystatus: com.apple.WebKit.WebContent exceeded mem limit: ActiveSoft 1536 MB (non-fatal)
 memorystatus: killing_highwater_process [com.apple.WebKit.WebContent] (highwater 100 17s) 8579568KB</pre>
-  <p>8.58 GB against a 1536 MB limit, in 17 seconds. Against a 200-row ceiling
-  that is roughly 7 MB for each scroll container.</p>
-  <p>Two things skewed earlier numbers and were corrected. Walking row counts
-  inside one browser session measures the accumulated total rather than the page,
-  because memory is not released between navigations. Running five sessions at
-  once against one device model produces sporadic kills well below the real
-  ceiling, so those runs were repeated one at a time.</p>
   <p>Devices: iPhone SE 2022, 12 Pro, 13, 14, 15, 15 Pro Max, 17 Pro. OS
-  versions: iOS 15, 16, 17, 18, 26, 27 Beta.</p>
-</details>
+  versions: iOS 15, 16, 17, 18, 26, 27 Beta</p>
+  </div>
+</section>
 
 <footer>
   <p>Found while tracing WKWebView content-process kills on a long list where every row
   carried its own horizontally scrollable gallery. Decoded images accounted for under
-  10% of the footprint; the scroll containers accounted for most of the rest.</p>
+  10% of the footprint; the scroll containers accounted for most of the rest</p>
 </footer>
