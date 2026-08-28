@@ -83,6 +83,7 @@ content-visibility: auto;`,
     file: "inview.html",
     name: "inview",
     group: "timeline",
+    cardOnly: true,
     about: "The same page, without any scroll timeline",
     alsoRun: "scroll-down=1",
     css: `overflow-x: auto;\n/* only while near the viewport */`,
@@ -891,6 +892,9 @@ const reporter = `<!doctype html>
 `;
 
 for (const demo of DEMOS) {
+  /* A page can appear as more than one card — inview is shown again beside the
+     timeline demo — but only the entry that owns it writes the file. */
+  if (demo.cardOnly) continue;
   writeFileSync(new URL(demo.file, import.meta.url), demoPage(demo));
 }
 for (const scenario of TESTS) {
