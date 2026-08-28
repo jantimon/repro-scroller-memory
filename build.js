@@ -18,8 +18,8 @@ const DEMOS = [
     css: `overflow: hidden;`,
     rules: null,
     stats: [
-      { verdict: "ok", value: "5000+", unit: "rows", os: "iOS 26 · 27 Beta",
-        devices: "17 Pro · 15" },
+      { verdict: "ok", label: "no crash", note: "tested to 5000 rows",
+        os: "iOS 26, iOS 27 Beta", devices: "iPhone 15 and 17 Pro" },
     ],
   },
   {
@@ -28,8 +28,8 @@ const DEMOS = [
     about:
       "The same scroll containers, with the row opted out of rendering while offscreen.",
     stats: [
-      { verdict: "ok", value: "5000+", unit: "rows", os: "iOS 26 · 27 Beta",
-        devices: "17 Pro · 15" },
+      { verdict: "ok", label: "no crash", note: "tested to 5000 rows",
+        os: "iOS 26, iOS 27 Beta", devices: "iPhone 15 and 17 Pro" },
     ],
     css: `overflow-x: auto;
 
@@ -51,8 +51,8 @@ content-visibility: auto;`,
     about:
       "An IntersectionObserver makes a row a scroll container only while it is near the viewport, and takes it back on the way out.",
     stats: [
-      { verdict: "ok", value: "5000+", unit: "rows", os: "iOS 26",
-        devices: "17 Pro" },
+      { verdict: "ok", label: "no crash", note: "tested to 5000 rows",
+        os: "iOS 26", devices: "iPhone 17 Pro" },
     ],
     css: `overflow-x: auto;\n/* only while near the viewport */`,
     rules: null,
@@ -82,15 +82,17 @@ content-visibility: auto;`,
   {
     file: "inview-timeline.html",
     name: "inview-timeline",
+    group: "timeline",
+    alsoRun: "scroll-down=1",
     about:
       "As inview, with a scroll timeline reading each row and one timeline name per row.",
     stats: [
-      { verdict: "ok", value: "59", unit: "fps", os: "500 rows",
-        devices: "14 · 15 · 15 Pro Max · 17 Pro" },
-      { verdict: "bad", value: "17–27", unit: "fps", os: "1000 rows, iOS 26",
-        devices: "14 · 15 · 15 Pro Max · 17 Pro" },
-      { verdict: "bad", value: "11", unit: "fps", os: "1000 rows, iOS 27 Beta",
-        devices: "15" },
+      { verdict: "ok", label: "59 fps", note: "500 rows",
+        os: "iOS 26", devices: "iPhone 14, 15, 15 Pro Max, 17 Pro" },
+      { verdict: "bad", label: "low, 17 to 27 fps", note: "1000 rows",
+        os: "iOS 26", devices: "iPhone 14, 15, 15 Pro Max, 17 Pro" },
+      { verdict: "bad", label: "low, 11 fps", note: "1000 rows",
+        os: "iOS 27 Beta", devices: "iPhone 15" },
     ],
     footnote: "The same page without the timeline holds 59 fps at 1000 rows.",
     css: `overflow-x: auto;\nscroll-timeline: var(--row) inline;`,
@@ -145,10 +147,11 @@ content-visibility: auto;`,
     about:
       "Every row is its own scroll container. This alone is enough to kill the page. Snapping is not required.",
     stats: [
-      { verdict: "ok", value: "5000+", unit: "rows", os: "iOS 15 · 16 · 17",
-        devices: "SE 2022 · 13 · 15" },
-      { verdict: "bad", value: "200", unit: "rows", os: "iOS 18 · 26 · 27 Beta",
-        devices: "12 Pro · 13 · 14 · 15 · 15 Pro Max · 17 Pro" },
+      { verdict: "ok", label: "no crash", note: "tested to 5000 rows",
+        os: "iOS 15, iOS 16, iOS 17", devices: "iPhone SE 2022, 13 and 15" },
+      { verdict: "bad", label: "crashes", note: "at 200 rows",
+        os: "iOS 18, iOS 26, iOS 27 Beta",
+        devices: "iPhone 12 Pro, 13, 14, 15, 15 Pro Max, 17 Pro" },
     ],
     footnote: "The iOS Simulator renders every row.",
     css: `overflow-x: auto;`,
@@ -399,14 +402,16 @@ ${runtime(name, mode === "slides")}${extra ? `\n<script>\n${extra}\n<\/script>\n
  * Measured outcome per demo. The number carries the weight, the device list
  * shows the spread, and the repeated figure across cards is the finding.
  */
-const statLine = ({ verdict, value, unit, os, devices }) => `      <div class="stat is-${verdict}">
-        <span class="mark">${verdict === "ok" ? "\u2705" : "\uD83D\uDCA5"}</span>
-        <span class="figure"><b>${value}</b> ${unit}</span>
-        <span class="where">${os}</span>
-        <span class="devices">${devices}</span>
+const statLine = ({ verdict, label, note, os, devices }) => `      <div class="stat is-${verdict}">
+        <div class="where">
+          <span class="os">${os}</span>
+          <span class="devices">${devices}</span>
+        </div>
+        <span class="verdict">${verdict === "ok" ? "\u2705" : "\uD83D\uDCA5"} ${label}</span>
+        <span class="note">${note}</span>
       </div>`;
 
-const card = ({ file, name, about, css, danger, stats, footnote }) => `  <li>
+const card = ({ file, name, about, css, danger, stats, footnote, alsoRun }) => `  <li>
     <div class="head">
       <h2>${name}</h2>
       <p class="about">${about}</p>
@@ -418,7 +423,13 @@ const card = ({ file, name, about, css, danger, stats, footnote }) => `  <li>
     <div class="stats">
 ${(stats ?? []).map(statLine).join("\n")}${footnote ? `\n      <p class="footnote">${footnote}</p>` : ""}
     </div>
-    <a class="run${danger ? " is-danger" : ""}" href="${file}" target="_blank" rel="noopener">Run ${name}</a>
+    <div class="runs">
+      <a class="run${danger ? " is-danger" : ""}" href="${file}" target="_blank" rel="noopener">Run ${name}</a>${
+        alsoRun
+          ? `\n      <a class="run is-danger" href="${file}?${alsoRun}" target="_blank" rel="noopener">Run ${name} (auto scroll)</a>`
+          : ""
+      }
+    </div>
   </li>`;
 
 const index = `<!doctype html>
@@ -477,6 +488,10 @@ const index = `<!doctype html>
   }
 
   h2 { font-size: 1rem; margin: 0 }
+
+  .group { font-size: 1.125rem; margin: 2.5rem 0 0.25rem }
+  .group-about { margin: 0; color: #666; max-width: 44rem; font-size: 0.9375rem }
+  .group + .group-about + .demos { margin-top: 1rem }
   .about { margin: 0.25rem 0 0; color: #666; font-size: 0.875rem }
 
   .head { padding: 0.875rem 1rem }
@@ -523,51 +538,47 @@ const index = `<!doctype html>
   }
 
   .stats {
-    padding: 0.75rem 1rem 0.875rem;
+    padding: 0.875rem 1rem;
     border-top: 1px solid #eaecf0;
     display: grid;
-    gap: 0.5rem;
+    gap: 0.875rem;
   }
 
-  /* Verdict, number, condition, devices — the number is the only large thing,
-     so a column of cards reads as a column of figures. */
+  /* Where it was tested on the left, what happened on the right, centred
+     against it. The verdict is the only part that needs no context. */
   .stat {
     display: grid;
-    grid-template-columns: 1.25rem auto 1fr;
-    align-items: baseline;
-    column-gap: 0.5rem;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    column-gap: 1rem;
   }
 
-  .mark { font-size: 0.875rem; line-height: 1 }
+  .where { display: grid; gap: 0.125rem; min-width: 0 }
+  .os,
+  .devices { font-size: 0.8125rem; font-weight: 600; color: #475467 }
 
-  .figure { font-size: 0.875rem; color: #475467; white-space: nowrap }
-  .figure b {
-    font-size: 1.375rem;
+  .verdict {
+    font-size: 0.9375rem;
     font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    color: #101828;
-  }
-  .is-bad .figure b { color: #b42318 }
-  .is-ok .figure b { color: #067647 }
-
-  .where {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #475467;
-    background: #f2f4f7;
-    border-radius: 999px;
-    padding: 0.15em 0.55em;
-    justify-self: start;
+    white-space: nowrap;
+    letter-spacing: -0.01em;
   }
 
-  /* Second line under the figure: which phones, quietly. */
-  .devices {
-    grid-column: 2 / -1;
+  .is-ok .verdict { color: #067647 }
+  .is-bad .verdict { color: #b42318 }
+
+  /* Sits under both columns, so it reads as an aside rather than a claim. */
+  .note {
+    grid-column: 1 / -1;
+    margin-top: 0.25rem;
     font-size: 0.75rem;
     color: #98a2b3;
+    font-variant-numeric: tabular-nums;
   }
 
-  .footnote { margin: 0; font-size: 0.75rem; color: #667085 }
+  .footnote { margin: 0; font-size: 0.8125rem; color: #667085 }
+
+  .runs { display: grid }
 
   .run {
     display: block;
@@ -581,6 +592,7 @@ const index = `<!doctype html>
   }
 
   .run:hover { background: #344054 }
+  .run + .run { border-top: 1px solid rgb(255 255 255 / 0.15) }
 
   /* The one that kills the tab. */
   .run.is-danger { background: #b42318 }
@@ -689,8 +701,21 @@ const index = `<!doctype html>
     </select>
   </div>
 
+<h2 class="group">Scroll containers and memory</h2>
+<p class="group-about">Five pages, the same 1000 rows of ten slides. They differ
+only in how the row is made scrollable.</p>
+
 <ul class="demos">
-${DEMOS.map(card).join("\n")}
+${DEMOS.filter((demo) => demo.group !== "timeline").map(card).join("\n")}
+</ul>
+
+<h2 class="group">Scroll timelines and frame rate</h2>
+<p class="group-about">A separate problem, on a page that survives. The
+<code>inview</code> page above is its control: same rows, same scroll
+containers, no timelines.</p>
+
+<ul class="demos">
+${DEMOS.filter((demo) => demo.group === "timeline").map(card).join("\n")}
 </ul>
 
 <section class="results">
@@ -803,7 +828,9 @@ ${DEMOS.map(card).join("\n")}
 
   const apply = () => {
     links.forEach((link, index) => {
-      link.setAttribute("href", base[index] + "?tiles=" + tiles.value);
+      const url = new URL(base[index], location.href);
+      url.searchParams.set("tiles", tiles.value);
+      link.setAttribute("href", url.pathname.split("/").pop() + url.search);
     });
   };
 

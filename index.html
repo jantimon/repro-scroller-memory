@@ -54,6 +54,10 @@
   }
 
   h2 { font-size: 1rem; margin: 0 }
+
+  .group { font-size: 1.125rem; margin: 2.5rem 0 0.25rem }
+  .group-about { margin: 0; color: #666; max-width: 44rem; font-size: 0.9375rem }
+  .group + .group-about + .demos { margin-top: 1rem }
   .about { margin: 0.25rem 0 0; color: #666; font-size: 0.875rem }
 
   .head { padding: 0.875rem 1rem }
@@ -100,51 +104,47 @@
   }
 
   .stats {
-    padding: 0.75rem 1rem 0.875rem;
+    padding: 0.875rem 1rem;
     border-top: 1px solid #eaecf0;
     display: grid;
-    gap: 0.5rem;
+    gap: 0.875rem;
   }
 
-  /* Verdict, number, condition, devices — the number is the only large thing,
-     so a column of cards reads as a column of figures. */
+  /* Where it was tested on the left, what happened on the right, centred
+     against it. The verdict is the only part that needs no context. */
   .stat {
     display: grid;
-    grid-template-columns: 1.25rem auto 1fr;
-    align-items: baseline;
-    column-gap: 0.5rem;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    column-gap: 1rem;
   }
 
-  .mark { font-size: 0.875rem; line-height: 1 }
+  .where { display: grid; gap: 0.125rem; min-width: 0 }
+  .os,
+  .devices { font-size: 0.8125rem; font-weight: 600; color: #475467 }
 
-  .figure { font-size: 0.875rem; color: #475467; white-space: nowrap }
-  .figure b {
-    font-size: 1.375rem;
+  .verdict {
+    font-size: 0.9375rem;
     font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    color: #101828;
-  }
-  .is-bad .figure b { color: #b42318 }
-  .is-ok .figure b { color: #067647 }
-
-  .where {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #475467;
-    background: #f2f4f7;
-    border-radius: 999px;
-    padding: 0.15em 0.55em;
-    justify-self: start;
+    white-space: nowrap;
+    letter-spacing: -0.01em;
   }
 
-  /* Second line under the figure: which phones, quietly. */
-  .devices {
-    grid-column: 2 / -1;
+  .is-ok .verdict { color: #067647 }
+  .is-bad .verdict { color: #b42318 }
+
+  /* Sits under both columns, so it reads as an aside rather than a claim. */
+  .note {
+    grid-column: 1 / -1;
+    margin-top: 0.25rem;
     font-size: 0.75rem;
     color: #98a2b3;
+    font-variant-numeric: tabular-nums;
   }
 
-  .footnote { margin: 0; font-size: 0.75rem; color: #667085 }
+  .footnote { margin: 0; font-size: 0.8125rem; color: #667085 }
+
+  .runs { display: grid }
 
   .run {
     display: block;
@@ -158,6 +158,7 @@
   }
 
   .run:hover { background: #344054 }
+  .run + .run { border-top: 1px solid rgb(255 255 255 / 0.15) }
 
   /* The one that kills the tab. */
   .run.is-danger { background: #b42318 }
@@ -266,6 +267,10 @@
     </select>
   </div>
 
+<h2 class="group">Scroll containers and memory</h2>
+<p class="group-about">Five pages, the same 1000 rows of ten slides. They differ
+only in how the row is made scrollable.</p>
+
 <ul class="demos">
   <li>
     <div class="head">
@@ -278,13 +283,17 @@
     <pre class="css">overflow: hidden;</pre>
     <div class="stats">
       <div class="stat is-ok">
-        <span class="mark">✅</span>
-        <span class="figure"><b>5000+</b> rows</span>
-        <span class="where">iOS 26 · 27 Beta</span>
-        <span class="devices">17 Pro · 15</span>
+        <div class="where">
+          <span class="os">iOS 26, iOS 27 Beta</span>
+          <span class="devices">iPhone 15 and 17 Pro</span>
+        </div>
+        <span class="verdict">✅ no crash</span>
+        <span class="note">tested to 5000 rows</span>
       </div>
     </div>
-    <a class="run" href="noscroller.html" target="_blank" rel="noopener">Run noscroller</a>
+    <div class="runs">
+      <a class="run" href="noscroller.html" target="_blank" rel="noopener">Run noscroller</a>
+    </div>
   </li>
   <li>
     <div class="head">
@@ -300,13 +309,17 @@
 content-visibility: auto;</pre>
     <div class="stats">
       <div class="stat is-ok">
-        <span class="mark">✅</span>
-        <span class="figure"><b>5000+</b> rows</span>
-        <span class="where">iOS 26 · 27 Beta</span>
-        <span class="devices">17 Pro · 15</span>
+        <div class="where">
+          <span class="os">iOS 26, iOS 27 Beta</span>
+          <span class="devices">iPhone 15 and 17 Pro</span>
+        </div>
+        <span class="verdict">✅ no crash</span>
+        <span class="note">tested to 5000 rows</span>
       </div>
     </div>
-    <a class="run" href="content-visibility.html" target="_blank" rel="noopener">Run content-visibility</a>
+    <div class="runs">
+      <a class="run" href="content-visibility.html" target="_blank" rel="noopener">Run content-visibility</a>
+    </div>
   </li>
   <li>
     <div class="head">
@@ -320,46 +333,17 @@ content-visibility: auto;</pre>
 /* only while near the viewport */</pre>
     <div class="stats">
       <div class="stat is-ok">
-        <span class="mark">✅</span>
-        <span class="figure"><b>5000+</b> rows</span>
-        <span class="where">iOS 26</span>
-        <span class="devices">17 Pro</span>
+        <div class="where">
+          <span class="os">iOS 26</span>
+          <span class="devices">iPhone 17 Pro</span>
+        </div>
+        <span class="verdict">✅ no crash</span>
+        <span class="note">tested to 5000 rows</span>
       </div>
     </div>
-    <a class="run" href="inview.html" target="_blank" rel="noopener">Run inview</a>
-  </li>
-  <li>
-    <div class="head">
-      <h2>inview-timeline</h2>
-      <p class="about">As inview, with a scroll timeline reading each row and one timeline name per row.</p>
+    <div class="runs">
+      <a class="run" href="inview.html" target="_blank" rel="noopener">Run inview</a>
     </div>
-    <a class="source" href="https://github.com/jantimon/repro-scroller-memory/blob/main/inview-timeline.html" target="_blank" rel="noopener"
-       aria-label="Source code for inview-timeline on GitHub"><span>Source code</span>
-      <svg class="gh" aria-hidden="true"><use href="#github"></use></svg></a>
-    <pre class="css">overflow-x: auto;
-scroll-timeline: var(--row) inline;</pre>
-    <div class="stats">
-      <div class="stat is-ok">
-        <span class="mark">✅</span>
-        <span class="figure"><b>59</b> fps</span>
-        <span class="where">500 rows</span>
-        <span class="devices">14 · 15 · 15 Pro Max · 17 Pro</span>
-      </div>
-      <div class="stat is-bad">
-        <span class="mark">💥</span>
-        <span class="figure"><b>17–27</b> fps</span>
-        <span class="where">1000 rows, iOS 26</span>
-        <span class="devices">14 · 15 · 15 Pro Max · 17 Pro</span>
-      </div>
-      <div class="stat is-bad">
-        <span class="mark">💥</span>
-        <span class="figure"><b>11</b> fps</span>
-        <span class="where">1000 rows, iOS 27 Beta</span>
-        <span class="devices">15</span>
-      </div>
-      <p class="footnote">The same page without the timeline holds 59 fps at 1000 rows.</p>
-    </div>
-    <a class="run" href="inview-timeline.html" target="_blank" rel="noopener">Run inview-timeline</a>
   </li>
   <li>
     <div class="head">
@@ -372,20 +356,76 @@ scroll-timeline: var(--row) inline;</pre>
     <pre class="css">overflow-x: auto;</pre>
     <div class="stats">
       <div class="stat is-ok">
-        <span class="mark">✅</span>
-        <span class="figure"><b>5000+</b> rows</span>
-        <span class="where">iOS 15 · 16 · 17</span>
-        <span class="devices">SE 2022 · 13 · 15</span>
+        <div class="where">
+          <span class="os">iOS 15, iOS 16, iOS 17</span>
+          <span class="devices">iPhone SE 2022, 13 and 15</span>
+        </div>
+        <span class="verdict">✅ no crash</span>
+        <span class="note">tested to 5000 rows</span>
       </div>
       <div class="stat is-bad">
-        <span class="mark">💥</span>
-        <span class="figure"><b>200</b> rows</span>
-        <span class="where">iOS 18 · 26 · 27 Beta</span>
-        <span class="devices">12 Pro · 13 · 14 · 15 · 15 Pro Max · 17 Pro</span>
+        <div class="where">
+          <span class="os">iOS 18, iOS 26, iOS 27 Beta</span>
+          <span class="devices">iPhone 12 Pro, 13, 14, 15, 15 Pro Max, 17 Pro</span>
+        </div>
+        <span class="verdict">💥 crashes</span>
+        <span class="note">at 200 rows</span>
       </div>
       <p class="footnote">The iOS Simulator renders every row.</p>
     </div>
-    <a class="run is-danger" href="full.html" target="_blank" rel="noopener">Run full</a>
+    <div class="runs">
+      <a class="run is-danger" href="full.html" target="_blank" rel="noopener">Run full</a>
+    </div>
+  </li>
+</ul>
+
+<h2 class="group">Scroll timelines and frame rate</h2>
+<p class="group-about">A separate problem, on a page that survives. The
+<code>inview</code> page above is its control: same rows, same scroll
+containers, no timelines.</p>
+
+<ul class="demos">
+  <li>
+    <div class="head">
+      <h2>inview-timeline</h2>
+      <p class="about">As inview, with a scroll timeline reading each row and one timeline name per row.</p>
+    </div>
+    <a class="source" href="https://github.com/jantimon/repro-scroller-memory/blob/main/inview-timeline.html" target="_blank" rel="noopener"
+       aria-label="Source code for inview-timeline on GitHub"><span>Source code</span>
+      <svg class="gh" aria-hidden="true"><use href="#github"></use></svg></a>
+    <pre class="css">overflow-x: auto;
+scroll-timeline: var(--row) inline;</pre>
+    <div class="stats">
+      <div class="stat is-ok">
+        <div class="where">
+          <span class="os">iOS 26</span>
+          <span class="devices">iPhone 14, 15, 15 Pro Max, 17 Pro</span>
+        </div>
+        <span class="verdict">✅ 59 fps</span>
+        <span class="note">500 rows</span>
+      </div>
+      <div class="stat is-bad">
+        <div class="where">
+          <span class="os">iOS 26</span>
+          <span class="devices">iPhone 14, 15, 15 Pro Max, 17 Pro</span>
+        </div>
+        <span class="verdict">💥 low, 17 to 27 fps</span>
+        <span class="note">1000 rows</span>
+      </div>
+      <div class="stat is-bad">
+        <div class="where">
+          <span class="os">iOS 27 Beta</span>
+          <span class="devices">iPhone 15</span>
+        </div>
+        <span class="verdict">💥 low, 11 fps</span>
+        <span class="note">1000 rows</span>
+      </div>
+      <p class="footnote">The same page without the timeline holds 59 fps at 1000 rows.</p>
+    </div>
+    <div class="runs">
+      <a class="run" href="inview-timeline.html" target="_blank" rel="noopener">Run inview-timeline</a>
+      <a class="run is-danger" href="inview-timeline.html?scroll-down=1" target="_blank" rel="noopener">Run inview-timeline (auto scroll)</a>
+    </div>
   </li>
 </ul>
 
@@ -499,7 +539,9 @@ scroll-timeline: var(--row) inline;</pre>
 
   const apply = () => {
     links.forEach((link, index) => {
-      link.setAttribute("href", base[index] + "?tiles=" + tiles.value);
+      const url = new URL(base[index], location.href);
+      url.searchParams.set("tiles", tiles.value);
+      link.setAttribute("href", url.pathname.split("/").pop() + url.search);
     });
   };
 
