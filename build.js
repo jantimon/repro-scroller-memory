@@ -8,6 +8,7 @@ import { writeFileSync } from "node:fs";
 import { VARIANTS } from "./variants.js";
 
 const REPO = "https://github.com/jantimon/repro-scroller-memory";
+const SITE = "https://jantimon.github.io/repro-scroller-memory/";
 
 const DEMOS = [
   {
@@ -451,6 +452,22 @@ const index = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Scroller memory repro</title>
+<meta name="description" content="A long list where every row is its own scroller kills the tab on iOS 18 and later. Around 200 rows is enough. The same phone on iOS 17 renders 5000.">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="${SITE}">
+<meta property="og:title" content="200 scroll containers crash the tab on iOS">
+<meta property="og:description" content="overflow-x: auto on 200 rows kills the WebContent process on iOS 18 and later. The same phone on iOS 17 renders 5000. Not fixed in iOS 27 Beta.">
+<meta property="og:image" content="${SITE}og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="iOS 15, 16 and 17 render 5000 rows without crashing. iOS 18, 26 and 27 Beta crash at 200 rows.">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="200 scroll containers crash the tab on iOS">
+<meta name="twitter:description" content="overflow-x: auto on 200 rows kills the WebContent process on iOS 18 and later. The same phone on iOS 17 renders 5000. Not fixed in iOS 27 Beta.">
+<meta name="twitter:image" content="${SITE}og.png">
+
 <link rel="stylesheet" href="https://unpkg.com/@speed-highlight/core@2.1.0/dist/themes/github-light.css">
 <style>
   body {

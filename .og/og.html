@@ -1,0 +1,33 @@
+<!doctype html>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; box-sizing: border-box }
+  body {
+    width: 1200px; height: 630px;
+    font: 16px system-ui, sans-serif;
+    background: #fff; color: #101828;
+    padding: 68px 80px 56px;
+    display: grid; grid-template-rows: auto 1fr auto;
+  }
+  .kicker { font-size: 22px; font-weight: 600; color: #667085 }
+  h1 { font-size: 66px; line-height: 1.04; letter-spacing: -0.025em; margin: 16px 0 0; max-width: 16ch }
+  h1 b { color: #b42318 }
+  .rows { display: grid; gap: 18px; align-content: center; }
+  .row { display: grid; grid-template-columns: 300px auto; align-items: baseline; gap: 20px;
+         font-size: 30px; font-variant-numeric: tabular-nums }
+  .os { font-weight: 700; color: #344054 }
+  .ok { color: #067647; font-weight: 700 }
+  .bad { color: #b42318; font-weight: 700 }
+  footer { display: flex; justify-content: space-between; align-items: baseline;
+           font-size: 22px; color: #667085; border-top: 2px solid #eaecf0; padding-top: 22px }
+  footer b { color: #101828 }
+</style>
+<div>
+  <div class="kicker">CSS · overflow-x: auto · iOS</div>
+  <h1>200 scroll containers <b>crash the tab</b></h1>
+</div>
+<div class="rows">
+  <div class="row"><span class="os">iOS 15 · 16 · 17</span><span class="ok">✅ 5000 rows, no crash</span></div>
+  <div class="row"><span class="os">iOS 18 · 26 · 27 Beta</span><span class="bad">💥 crashes at 200 rows</span></div>
+</div>
+<footer><span>jantimon.github.io/repro-scroller-memory</span><span><b>7 iPhones · 6 iOS versions</b></span></footer>
