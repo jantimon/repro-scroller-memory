@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>tiny-timeline</title>
+<style>
+  :root { color-scheme: light dark; }
+
+  body {
+    margin: 0;
+    font: 13px/1.4 system-ui, sans-serif;
+  }
+
+  #bar {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 10;
+    padding: 6px 10px;
+    background: #111;
+    color: #eee;
+    font-variant-numeric: tabular-nums;
+  }
+
+  #list { padding-top: 34px; }
+
+  .tile {
+    padding: 8px 16px 24px;
+    timeline-scope: var(--row);
+  }
+
+  .scroller {
+    display: flex;
+    gap: 16px;
+    /* Whole pixels: at a fractional width a slide would otherwise stop a fraction short. */
+    width: round(down, 100%, 1px);
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+  }
+
+  .slide {
+    flex: 0 0 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .box {
+    width: 200px;
+    height: 200px;
+    background: #c0c6d0;
+  }
+
+  .scroller.is-live {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+    scroll-timeline: var(--row) inline;
+  }
+
+  .scroller.is-live::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tile::after {
+    content: "";
+    display: block;
+    height: 4px;
+    margin-top: 8px;
+    background: #8a94a6;
+    animation: sweep linear both;
+    animation-timeline: var(--row);
+  }
+
+  @keyframes sweep {
+    from { width: 10% }
+    to { width: 100% }
+  }
+</style>
+<style>
+  /* Short rows: the scroller is no longer a viewport-square, so roughly twenty
+     rows sit on screen at once instead of one. */
+  .scroller { aspect-ratio: auto; height: 24px }
+  .box { width: 20px; height: 20px }
+  .tile { padding: 2px 16px 4px }
+</style>
+
+
+<div id="bar"></div>
+<div id="list"></div>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  const size = (key, fallback) => {
+    const value = Number(params.get(key));
+    return Number.isFinite(value) && value > 0 ? value : fallback;
+  };
+
+  const TILES = size("tiles", 1000);
+  const SLIDES = size("slides", 10);
+  const NESTED = true;
+  const NAME = "inview-timeline";
+
+  const record = (phase, extra) => {
+    const state = { page: NAME, rows: TILES, phase, ...extra };
+    document.title = NAME + " " + TILES + " " + phase;
+    try {
+      localStorage.setItem("run", JSON.stringify(state));
+    } catch {}
+    return state;
+  };
+
+  record("start");
+
+  const fragment = document.createDocumentFragment();
+
+  for (let tile = 0; tile < TILES; tile++) {
+    const row = document.createElement("div");
+    row.className = "tile";
+
+    const scroller = document.createElement("div");
+    scroller.className = "scroller";
+
+    for (let slide = 0; slide < SLIDES; slide++) {
+      const box = document.createElement("div");
+      box.className = "box";
+      if (NESTED) {
+        const cell = document.createElement("div");
+        cell.className = "slide";
+        cell.appendChild(box);
+        scroller.appendChild(cell);
+      } else {
+        scroller.appendChild(box);
+      }
+    }
+
+    row.appendChild(scroller);
+    fragment.appendChild(row);
+  }
+
+  document.getElementById("list").appendChild(fragment);
+
+  const elements = document.getElementsByTagName("*").length;
+  record("built", { elements });
+  document.getElementById("bar").textContent =
+    NAME + " — " + TILES + " rows × " + SLIDES + " slides, " + elements + " elements";
+
+  if (params.has("scroll-down")) {
+    let previous = -1;
+    let stalled = 0;
+    /* Frame intervals while the page drives itself down at a fixed step, so the
+       number describes the page rather than how fast a finger moved. */
+    const frames = [];
+    let last = performance.now();
+
+    const timing = () => {
+      if (frames.length < 2) return {};
+      const sorted = [...frames].sort((a, b) => a - b);
+      const at = (share) => sorted[Math.floor(sorted.length * share)];
+      return {
+        frames: frames.length,
+        fps: Math.round(1000 / at(0.5)),
+        medianMs: Math.round(at(0.5)),
+        p90Ms: Math.round(at(0.9)),
+        worstMs: Math.round(sorted[sorted.length - 1]),
+        longFrames: sorted.filter((ms) => ms > 50).length,
+      };
+    };
+
+    const step = () => {
+      const now = performance.now();
+      frames.push(now - last);
+      last = now;
+
+      const bottom = document.documentElement.scrollHeight - window.innerHeight;
+      if (window.scrollY >= bottom - 2) {
+        record("scrolled", { elements, ...timing() });
+        return;
+      }
+      if (window.scrollY === previous) {
+        stalled++;
+        if (stalled > 180) {
+          record("stalled", { elements, at: window.scrollY, ...timing() });
+          return;
+        }
+      } else {
+        stalled = 0;
+      }
+      previous = window.scrollY;
+      window.scrollBy(0, window.innerHeight);
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+</script>
+
+<script>
+  // A name per row: WebKit resolves a single name shared across hundreds of
+  // elements very slowly.
+  document.querySelectorAll(".tile").forEach((tile, index) => {
+    tile.style.setProperty("--row", "--row" + index);
+  });
+
+  const watcher = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        entry.target
+          .querySelector(".scroller")
+          ?.classList.toggle("is-live", entry.isIntersecting);
+      }
+    },
+    { rootMargin: window.innerHeight * 2 + "px" },
+  );
+  for (const tile of document.querySelectorAll(".tile")) watcher.observe(tile);
+</script>
