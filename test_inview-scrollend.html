@@ -15,12 +15,14 @@
     position: fixed;
     inset: 0 0 auto 0;
     z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     padding: 6px 10px;
     background: #111;
     color: #eee;
     font-variant-numeric: tabular-nums;
   }
-
   #list { padding-top: 34px; }
 
   .tile {
@@ -116,16 +118,17 @@
 
   const elements = document.getElementsByTagName("*").length;
   record("built", { elements });
-  document.getElementById("bar").textContent =
+  const out = document.getElementById("out") ?? document.getElementById("bar");
+  out.textContent =
     NAME + " — " + TILES + " rows × " + SLIDES + " slides, " + elements + " elements";
 
-  if (params.has("scroll-down")) {
-    let previous = -1;
-    let stalled = 0;
-    /* Frame intervals while the page drives itself down at a fixed step, so the
-       number describes the page rather than how fast a finger moved. */
+  /* Walks the page down a viewport per frame and records the frame intervals,
+     so the number describes the page rather than how fast a finger moved. */
+  const walkDown = (done) => {
     const frames = [];
     let last = performance.now();
+    let previous = -1;
+    let stalled = 0;
 
     const timing = () => {
       if (frames.length < 2) return {};
@@ -141,31 +144,50 @@
       };
     };
 
+    const finish = (phase, extra) => {
+      const state = record(phase, { elements, ...timing(), ...extra });
+      if (state.fps) {
+        out.textContent =
+          state.fps + " fps, median " + state.medianMs + " ms, p90 " +
+          state.p90Ms + " ms, " + state.longFrames + " of " + state.frames +
+          " frames over 50 ms";
+      }
+      done?.();
+    };
+
     const step = () => {
       const now = performance.now();
       frames.push(now - last);
       last = now;
 
       const bottom = document.documentElement.scrollHeight - window.innerHeight;
-      if (window.scrollY >= bottom - 2) {
-        record("scrolled", { elements, ...timing() });
-        return;
-      }
+      if (window.scrollY >= bottom - 2) return finish("scrolled");
+
+      /* scrollY is updated off the main thread, so the frame after a scrollBy
+         often still reads the old position. Only give up once it has not moved
+         for three seconds. */
       if (window.scrollY === previous) {
-        stalled++;
-        if (stalled > 180) {
-          record("stalled", { elements, at: window.scrollY, ...timing() });
-          return;
-        }
+        if (++stalled > 180) return finish("stalled", { at: window.scrollY });
       } else {
         stalled = 0;
       }
+
       previous = window.scrollY;
       window.scrollBy(0, window.innerHeight);
       requestAnimationFrame(step);
     };
+
     requestAnimationFrame(step);
-  }
+  };
+
+  if (params.has("scroll-down")) walkDown();
+
+  const button = document.getElementById("run");
+  button?.addEventListener("click", () => {
+    button.disabled = true;
+    document.getElementById("out").textContent = "scrolling…";
+    walkDown(() => { button.disabled = false; });
+  });
 </script>
 
 <script>

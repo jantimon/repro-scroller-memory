@@ -9,6 +9,7 @@ import { VARIANTS } from "./variants.js";
 
 const REPO = "https://github.com/jantimon/repro-scroller-memory";
 const SITE = "https://jantimon.github.io/repro-scroller-memory/";
+const BUG = (id) => `https://bugs.webkit.org/show_bug.cgi?id=${id}`;
 
 const DEMOS = [
   {
@@ -49,6 +50,7 @@ content-visibility: auto;`,
   {
     file: "inview.html",
     name: "inview",
+    fpsButton: true,
     about:
       "An IntersectionObserver turns a row a scroll container with overflow-x: auto only as long it is in view",
     stats: [
@@ -97,6 +99,7 @@ content-visibility: auto;`,
   {
     file: "inview-timeline.html",
     name: "inview-timeline",
+    fpsButton: true,
     group: "timeline",
     alsoRun: "scroll-down=1",
     alsoRunDanger: true,
@@ -242,16 +245,17 @@ const runtime = (name, nested) => `<script>
 
   const elements = document.getElementsByTagName("*").length;
   record("built", { elements });
-  document.getElementById("bar").textContent =
+  const out = document.getElementById("out") ?? document.getElementById("bar");
+  out.textContent =
     NAME + " \u2014 " + TILES + " rows \u00d7 " + SLIDES + " slides, " + elements + " elements";
 
-  if (params.has("scroll-down")) {
-    let previous = -1;
-    let stalled = 0;
-    /* Frame intervals while the page drives itself down at a fixed step, so the
-       number describes the page rather than how fast a finger moved. */
+  /* Walks the page down a viewport per frame and records the frame intervals,
+     so the number describes the page rather than how fast a finger moved. */
+  const walkDown = (done) => {
     const frames = [];
     let last = performance.now();
+    let previous = -1;
+    let stalled = 0;
 
     const timing = () => {
       if (frames.length < 2) return {};
@@ -267,35 +271,54 @@ const runtime = (name, nested) => `<script>
       };
     };
 
+    const finish = (phase, extra) => {
+      const state = record(phase, { elements, ...timing(), ...extra });
+      if (state.fps) {
+        out.textContent =
+          state.fps + " fps, median " + state.medianMs + " ms, p90 " +
+          state.p90Ms + " ms, " + state.longFrames + " of " + state.frames +
+          " frames over 50 ms";
+      }
+      done?.();
+    };
+
     const step = () => {
       const now = performance.now();
       frames.push(now - last);
       last = now;
 
       const bottom = document.documentElement.scrollHeight - window.innerHeight;
-      if (window.scrollY >= bottom - 2) {
-        record("scrolled", { elements, ...timing() });
-        return;
-      }
+      if (window.scrollY >= bottom - 2) return finish("scrolled");
+
+      /* scrollY is updated off the main thread, so the frame after a scrollBy
+         often still reads the old position. Only give up once it has not moved
+         for three seconds. */
       if (window.scrollY === previous) {
-        stalled++;
-        if (stalled > 180) {
-          record("stalled", { elements, at: window.scrollY, ...timing() });
-          return;
-        }
+        if (++stalled > 180) return finish("stalled", { at: window.scrollY });
       } else {
         stalled = 0;
       }
+
       previous = window.scrollY;
       window.scrollBy(0, window.innerHeight);
       requestAnimationFrame(step);
     };
+
     requestAnimationFrame(step);
-  }
+  };
+
+  if (params.has("scroll-down")) walkDown();
+
+  const button = document.getElementById("run");
+  button?.addEventListener("click", () => {
+    button.disabled = true;
+    document.getElementById("out").textContent = "scrolling\u2026";
+    walkDown(() => { button.disabled = false; });
+  });
 <\/script>
 `;
 
-const demoPage = ({ name, rules, tile, style, extra }) => `<!doctype html>
+const demoPage = ({ name, rules, tile, style, extra, fpsButton }) => `<!doctype html>
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -312,12 +335,27 @@ const demoPage = ({ name, rules, tile, style, extra }) => `<!doctype html>
     position: fixed;
     inset: 0 0 auto 0;
     z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     padding: 6px 10px;
     background: #111;
     color: #eee;
     font-variant-numeric: tabular-nums;
   }
+${fpsButton ? `
+  #run {
+    flex: none;
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 6px;
+    background: #eee;
+    color: #111;
+    font: inherit;
+  }
 
+  #run:disabled { opacity: 0.5 }
+` : ""}
   #list { padding-top: 34px; }
 
   .tile {
@@ -347,7 +385,7 @@ const demoPage = ({ name, rules, tile, style, extra }) => `<!doctype html>
   }
 ${style ? `\n${style}\n` : ""}</style>
 
-<div id="bar"></div>
+<div id="bar">${fpsButton ? `<button id="run">scroll to bottom</button><span id="out"></span>` : ""}</div>
 <div id="list"></div>
 
 ${runtime(name, true)}${extra ? `\n<script>\n${extra}\n<\/script>\n` : ""}`;
@@ -380,12 +418,14 @@ const testPage = ({ name, mode, tile, scroller, slide, css, extra }) => `<!docty
     position: fixed;
     inset: 0 0 auto 0;
     z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     padding: 6px 10px;
     background: #111;
     color: #eee;
     font-variant-numeric: tabular-nums;
   }
-
   #list { padding-top: 34px; }
 
   .tile {
@@ -522,6 +562,8 @@ const index = `<!doctype html>
 
   .group { font-size: 1.125rem; margin: 2.5rem 0 0.25rem }
   .group-about { margin: 0; color: #666; max-width: 44rem; font-size: 0.9375rem }
+  .filed { margin: 0.35rem 0 0; font-size: 0.875rem; color: #667085 }
+  .filed a { color: #b42318; font-weight: 600 }
   .group + .group-about + .demos { margin-top: 1rem }
   .about { margin: 0.25rem 0 0; color: #666; font-size: 0.875rem }
 
@@ -743,6 +785,7 @@ const index = `<!doctype html>
 <h2 class="group">Scroll containers and memory</h2>
 <p class="group-about">Five pages, the same 1000 rows of ten slides. They differ
 only in how the row is made scrollable</p>
+<p class="filed">Filed as <a href="${BUG(322930)}" target="_blank" rel="noopener">WebKit bug 322930</a></p>
 
 <ul class="demos">
 ${DEMOS.filter((demo) => demo.group !== "timeline").map(card).join("\n")}
@@ -752,6 +795,7 @@ ${DEMOS.filter((demo) => demo.group !== "timeline").map(card).join("\n")}
 <p class="group-about">A separate problem, on a page that survives. The
 <code>inview</code> page above is its control: same rows, same scroll
 containers, no timelines</p>
+<p class="filed">Filed as <a href="${BUG(322931)}" target="_blank" rel="noopener">WebKit bug 322931</a>, alongside the earlier <a href="${BUG(322283)}" target="_blank" rel="noopener">322283</a> on shared timeline names</p>
 
 <ul class="demos">
 ${DEMOS.filter((demo) => demo.group === "timeline").map(card).join("\n")}

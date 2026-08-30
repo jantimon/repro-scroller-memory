@@ -7,7 +7,15 @@ Demo: https://jantimon.github.io/repro-scroller-memory/
 
 ⚠️ Crashes only happen on real iPhones, not in the Simulator
 
+Filed as WebKit bugs
+[322930](https://bugs.webkit.org/show_bug.cgi?id=322930) (memory) and
+[322931](https://bugs.webkit.org/show_bug.cgi?id=322931) (frame rate), alongside
+the earlier [322283](https://bugs.webkit.org/show_bug.cgi?id=322283) on shared
+timeline names
+
 ## Scroll containers and memory
+
+[WebKit bug 322930](https://bugs.webkit.org/show_bug.cgi?id=322930)
 
 Every page is 1000 flex rows of 10 full-width slides, each holding a 200x200
 box. No images, no libraries. They differ only in how the row is made scrollable.
@@ -58,7 +66,12 @@ Chrome and Firefox on Android or desktop are unaffected.
 
 ## Scroll timelines and frame rate
 
-A separate problem, on a page that survives.
+[WebKit bug 322931](https://bugs.webkit.org/show_bug.cgi?id=322931), and
+[322283](https://bugs.webkit.org/show_bug.cgi?id=322283) for the shared-name
+case
+
+A separate problem, on a page that survives. Both pages carry a
+"scroll to bottom" button that walks the page and prints the frame timing.
 
 | page | what it is | result |
 | --- | --- | --- |
